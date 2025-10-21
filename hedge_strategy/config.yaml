@@ -1,0 +1,24 @@
+accounts:
+  account_a:
+    api_key_private_key: ""  # 替换为实际的私钥
+    account_index:               # 替换为实际的账户索引
+    api_key_index: 
+
+  account_b:
+    api_key_private_key: ""  # 替换为实际的私钥
+    account_index:               # 替换为实际的账户索引
+    api_key_index: 
+
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+
+lighter:
+  base_url: "https://mainnet.zklighter.elliot.ai"
+
+strategy:
+  retry_times: 3           # 对冲失败重试次数
+  poll_interval: 1         # 订单状态轮询间隔(秒)
+  ws_reconnect_delay: 5    # WebSocket重连延迟(秒)
+
