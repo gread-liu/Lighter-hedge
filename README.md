@@ -120,7 +120,6 @@ python hedge_strategy/main.py --market ETH --quantity 100000 --depth 1
 **示例2：BTC，5万数量，买2价挂单**
 ```bash
 python hedge_strategy/main.py --market BTC --quantity 50000 --depth 2
-python hedge_strategy/main.py --market ENA --quantity 23 --depth 1
 ```
 
 ## 工作流程
