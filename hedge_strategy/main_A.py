@@ -159,6 +159,15 @@ class HedgeStrategy:
                 logging.info(f"开始第 {cycle_count} 轮循环")
                 logging.info("=" * 60)
 
+                # 第一步 查询出活跃订单
+
+                # 第二步 查询持仓情况（如果活跃单超过1分钟不成交，则取消活跃单）
+                    # 如果持仓不存在，活跃单不存在，则限价开多
+                    # 如果持仓不存在，活跃单存在，则不做任何处理
+                    # 如果持仓存在，活跃单不存在，则限价平多
+                    # 如果持仓存在，活跃单存在，则不做任何处理
+
+
                 # 步骤1: A账户创建限价买单
                 logging.info("[步骤1] A账户创建限价买单...")
                 success = await self.account_a_manager.create_limit_buy_order(self.base_amount_multiplier,
@@ -179,7 +188,7 @@ class HedgeStrategy:
 
                 # 步骤4: 准备下一轮
                 logging.info(f"第 {cycle_count} 轮完成，准备下一轮...")
-                await asyncio.sleep(2)  # 短暂休息
+                await asyncio.sleep(5)  # 短暂休息
 
         except Exception as e:
             logging.error(f"策略运行异常: {e}")
