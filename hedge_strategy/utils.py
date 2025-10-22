@@ -7,6 +7,7 @@ import asyncio
 import logging
 import os
 import sys
+from decimal import Decimal
 from typing import Optional, Dict, Any
 
 from lighter import OrderBook
@@ -261,7 +262,12 @@ async def get_positions(
             raise ValueError("Failed to get positions")
 
         logging.log(f"Failed to get positions{account_data}")
-        return account_data.accounts[0].positions
+
+        for position in account_data.accounts[0].positions:
+            if position.market_id == market_index:
+                return Decimal(position.position)
+
+        return Decimal(0)
 
     except Exception as e:
         logging.warning(f"获取持仓过程出错: {e}，继续执行")
