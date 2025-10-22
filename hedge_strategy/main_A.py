@@ -95,17 +95,7 @@ class HedgeStrategy:
                 api_key_index=account_a_config['api_key_index']
             )
 
-            # 4. 初始化B账户客户端
-            logging.info("初始化B账户...")
-            account_b_config = self.config['accounts']['account_b']
-            self.client_b = lighter.SignerClient(
-                url=self.config['lighter']['base_url'],
-                private_key=account_b_config['api_key_private_key'],
-                account_index=account_b_config['account_index'],
-                api_key_index=account_b_config['api_key_index']
-            )
-
-            # 5. 查询市场索引
+            # 4. 查询市场索引
             logging.info(f"查询市场索引: {self.market_name}...")
             orderBook = await get_market_index_by_name(
                 self.client_a.api_client,
@@ -118,20 +108,15 @@ class HedgeStrategy:
             if self.market_index is None:
                 raise Exception(f"未找到市场: {self.market_name}")
 
-            # 6. 取消历史挂单
+            # 5. 取消历史挂单
             logging.info("清理历史挂单...")
             await cancel_all_orders(
                 self.client_a,
                 account_a_config['account_index'],
                 self.market_index
             )
-            await cancel_all_orders(
-                self.client_b,
-                account_b_config['account_index'],
-                self.market_index
-            )
 
-            # 7. 初始化A账户管理器
+            # 6. 初始化A账户管理器
             logging.info("初始化A账户管理器...")
             self.account_a_manager = AccountAManager(
                 signer_client=self.client_a,
@@ -143,26 +128,16 @@ class HedgeStrategy:
                 poll_interval=self.config['strategy']['poll_interval']
             )
 
-            # 8. 初始化B账户管理器
-            logging.info("初始化B账户管理器...")
-            self.account_b_manager = AccountBManager(
-                signer_client=self.client_b,
-                redis_messenger=self.redis_messenger,
-                account_index=account_b_config['account_index'],
-                retry_times=self.config['strategy']['retry_times']
-            )
-
-            # 9. 设置Redis订阅
+            # 7. 设置Redis订阅
             logging.info("设置Redis订阅...")
             self.redis_messenger.subscribe(
-                RedisMessenger.CHANNEL_A_FILLED,
+                RedisMessenger.CHANNEL_B_FILLED,
                 self.account_b_manager.on_a_account_filled
             )
-            self.redis_messenger.subscribe(
-                RedisMessenger.CHANNEL_B_FILLED,
-                self.account_a_manager.on_b_account_filled
-            )
             self.redis_messenger.start_listening()
+
+            # todo 8. WS监听A账户的通知
+
 
             logging.info("初始化完成！")
 
@@ -173,7 +148,6 @@ class HedgeStrategy:
     async def run(self):
         """运行策略主循环"""
         self.running = True
-        self.account_b_manager.start_listening()
 
         cycle_count = 0
 
