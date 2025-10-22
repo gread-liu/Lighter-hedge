@@ -11,6 +11,8 @@ import logging
 import signal
 from decimal import Decimal
 
+from lighter import ApiClient, Configuration
+
 # 添加temp_lighter到路径
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'temp_lighter'))
 
@@ -21,7 +23,7 @@ from account_b_manager import AccountBManager
 from utils import (
     load_config,
     get_market_index_by_name,
-    cancel_all_orders
+    cancel_all_orders, get_account_active_orders, get_positions
 )
 
 
@@ -48,7 +50,9 @@ class HedgeStrategy:
 
         self.redis_messenger = None
         self.client_a = None
+        self.api_client_a = None
         self.client_b = None
+        self.api_client_b = None
         self.account_a_manager = None
         self.account_b_manager = None
         self.base_amount_multiplier = None
@@ -94,6 +98,7 @@ class HedgeStrategy:
                 account_index=account_a_config['account_index'],
                 api_key_index=account_a_config['api_key_index']
             )
+            self.api_client_a = ApiClient(configuration=Configuration(host=self.config['lighter']['base_url']))
 
             # 4. 查询市场索引
             logging.info(f"查询市场索引: {self.market_name}...")
@@ -160,34 +165,49 @@ class HedgeStrategy:
                 logging.info("=" * 60)
 
                 # 第一步 查询出活跃订单
+                logging.info("第一步 查询出活跃订单...")
+                active_orders = await get_account_active_orders(
+                    self.client_a,
+                    self.config['accounts']['account_a']['account_index'],
+                    self.market_index
+                )
+                print(active_orders)
 
                 # 第二步 查询持仓情况（如果活跃单超过1分钟不成交，则取消活跃单）
+                get_position = await get_positions(
+                    self.api_client_a,
+                    self.config['accounts']['account_a']['account_index'],
+                    self.market_index
+                )
+                print(get_position)
+
+                # 第三步 核心逻辑处理
                     # 如果持仓不存在，活跃单不存在，则限价开多
                     # 如果持仓不存在，活跃单存在，则不做任何处理
                     # 如果持仓存在，活跃单不存在，则限价平多
                     # 如果持仓存在，活跃单存在，则不做任何处理
 
-
-                # 步骤1: A账户创建限价买单
-                logging.info("[步骤1] A账户创建限价买单...")
-                success = await self.account_a_manager.create_limit_buy_order(self.base_amount_multiplier,
-                                                                              self.price_multiplier)
-
-                if not success:
-                    logging.warning("创建订单失败，5秒后重试...")
-                    await asyncio.sleep(5)
-                    continue
-
-                # 步骤2: 监控订单直到完全成交
-                logging.info("[步骤2] 监控A账户订单状态...")
-                await self.account_a_manager.monitor_order_until_filled()
-
-                # 步骤3: 等待B账户对冲完成
-                logging.info("[步骤3] 等待B账户对冲完成...")
-                await self.account_a_manager.wait_for_b_filled(timeout=300)
-
-                # 步骤4: 准备下一轮
-                logging.info(f"第 {cycle_count} 轮完成，准备下一轮...")
+                #
+                # # 步骤1: A账户创建限价买单
+                # logging.info("[步骤1] A账户创建限价买单...")
+                # success = await self.account_a_manager.create_limit_buy_order(self.base_amount_multiplier,
+                #                                                               self.price_multiplier)
+                #
+                # if not success:
+                #     logging.warning("创建订单失败，5秒后重试...")
+                #     await asyncio.sleep(5)
+                #     continue
+                #
+                # # 步骤2: 监控订单直到完全成交
+                # logging.info("[步骤2] 监控A账户订单状态...")
+                # await self.account_a_manager.monitor_order_until_filled()
+                #
+                # # 步骤3: 等待B账户对冲完成
+                # logging.info("[步骤3] 等待B账户对冲完成...")
+                # await self.account_a_manager.wait_for_b_filled(timeout=300)
+                #
+                # # 步骤4: 准备下一轮
+                # logging.info(f"第 {cycle_count} 轮完成，准备下一轮...")
                 await asyncio.sleep(5)  # 短暂休息
 
         except Exception as e:

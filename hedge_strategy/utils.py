@@ -30,14 +30,14 @@ async def get_market_index_by_name(api_client: lighter.ApiClient, market_name: s
     """
     max_retries = 5
     retry_count = 0
-    
+
     while retry_count < max_retries:
         try:
             # 创建OrderApi实例
             order_api = lighter.OrderApi(api_client)
             # 获取所有市场信息（market_id=255表示获取所有市场）
             order_books = await order_api.order_books(market_id=255)
-            
+
             # 遍历所有市场找到匹配的symbol
             for order_book in order_books.order_books:
                 if order_book.symbol.upper() == market_name.upper():
@@ -47,7 +47,7 @@ async def get_market_index_by_name(api_client: lighter.ApiClient, market_name: s
 
             logging.error(f"未找到市场: {market_name}")
             return None
-            
+
         except Exception as e:
             if "429" in str(e) or "Too Many Requests" in str(e):
                 retry_count += 1
@@ -58,16 +58,16 @@ async def get_market_index_by_name(api_client: lighter.ApiClient, market_name: s
             else:
                 logging.error(f"查询市场索引失败: {e}")
                 raise
-    
+
     logging.error(f"查询市场索引失败，已重试{max_retries}次")
     raise Exception(f"API限流严重，无法查询市场 {market_name}")
 
 
 async def get_orderbook_price_at_depth(
-    api_client: lighter.ApiClient,
-    market_index: int,
-    depth: int,
-    is_bid: bool = True
+        api_client: lighter.ApiClient,
+        market_index: int,
+        depth: int,
+        is_bid: bool = True
 ) -> Optional[str]:
     """
     获取订单簿指定档位的价格
@@ -83,26 +83,26 @@ async def get_orderbook_price_at_depth(
     """
     max_retries = 3
     retry_count = 0
-    
+
     while retry_count < max_retries:
         try:
             order_api = lighter.OrderApi(api_client)
             # 获取订单簿数据，limit设置为depth以确保有足够的档位
             order_book_orders = await order_api.order_book_orders(market_index, limit=max(depth, 10))
-            
+
             # 选择买盘或卖盘
             orders = order_book_orders.bids if is_bid else order_book_orders.asks
-            
+
             # 检查是否有足够的档位
             if len(orders) < depth:
                 logging.error(f"订单簿档位不足，需要第{depth}档，但只有{len(orders)}档")
                 return None
-            
+
             # 获取指定档位的价格（索引从0开始，所以减1）
             price = orders[depth - 1].price
             logging.info(f"市场{market_index} {'买' if is_bid else '卖'}{depth}档价格: {price}")
             return price
-            
+
         except Exception as e:
             if "429" in str(e) or "Too Many Requests" in str(e):
                 retry_count += 1
@@ -113,15 +113,15 @@ async def get_orderbook_price_at_depth(
             else:
                 logging.error(f"获取订单簿价格失败: {e}")
                 raise
-    
+
     logging.error(f"获取订单簿价格失败，已重试{max_retries}次")
     raise Exception(f"API限流严重，无法获取市场{market_index}的订单簿价格")
 
 
 async def cancel_all_orders(
-    signer_client: lighter.SignerClient,
-    account_index: int,
-    market_index: int
+        signer_client: lighter.SignerClient,
+        account_index: int,
+        market_index: int
 ):
     """
     取消指定账户在指定市场的所有活跃订单
@@ -140,13 +140,13 @@ async def cancel_all_orders(
                 break
             logging.warning(f"生成认证token失败 (尝试 {auth_retry + 1}/3): {auth_error}")
             await asyncio.sleep(0.5)
-        
+
         if auth_token is None:
             logging.warning("无法生成认证token，跳过清理历史订单")
             return
-        
+
         order_api = lighter.OrderApi(signer_client.api_client)
-        
+
         # 获取所有活跃订单
         try:
             orders = await order_api.account_active_orders(
@@ -158,13 +158,13 @@ async def cancel_all_orders(
             # 如果查询失败（比如认证问题），记录警告但不中断程序
             logging.warning(f"查询活跃订单失败: {e}，跳过清理历史订单")
             return
-        
+
         if not orders.orders or len(orders.orders) == 0:
             logging.info(f"账户{account_index}在市场{market_index}没有活跃订单")
             return
-        
+
         logging.info(f"发现{len(orders.orders)}个活跃订单，准备取消")
-        
+
         # 逐个取消订单
         for order in orders.orders:
             try:
@@ -175,9 +175,96 @@ async def cancel_all_orders(
                 logging.info(f"已取消订单: {order.order_id}")
             except Exception as e:
                 logging.error(f"取消订单{order.order_id}失败: {e}")
-    
+
     except Exception as e:
         logging.warning(f"取消所有订单过程出错: {e}，继续执行")
+        # 不再抛出异常，允许程序继续
+
+
+async def get_account_active_orders(
+        signer_client: lighter.SignerClient,
+        account_index: int,
+        market_index: int
+):
+    """
+    取消指定账户在指定市场的所有活跃订单
+
+    Args:
+        signer_client: lighter签名客户端
+        account_index: 账户索引
+        market_index: 市场索引
+    """
+    try:
+        # 生成认证token（增加重试机制）
+        auth_token = None
+        for auth_retry in range(3):
+            auth_token, auth_error = signer_client.create_auth_token_with_expiry()
+            if auth_error is None:
+                break
+            logging.warning(f"生成认证token失败 (尝试 {auth_retry + 1}/3): {auth_error}")
+            await asyncio.sleep(0.5)
+
+        if auth_token is None:
+            logging.warning("无法生成认证token，跳过清理历史订单")
+            return
+
+        order_api = lighter.OrderApi(signer_client.api_client)
+
+        # 获取所有活跃订单
+        try:
+            orders = await order_api.account_active_orders(
+                account_index=account_index,
+                market_id=market_index,
+                auth=auth_token
+            )
+        except Exception as e:
+            # 如果查询失败（比如认证问题），记录警告但不中断程序
+            logging.warning(f"查询活跃订单失败: {e}，跳过清理历史订单")
+            return
+
+        if not orders.orders or len(orders.orders) == 0:
+            logging.info(f"账户{account_index}在市场{market_index}没有活跃订单")
+            return
+
+        logging.info(f"发现{len(orders.orders)}个活跃订单，准备取消")
+
+        return orders.orders
+
+    except Exception as e:
+        logging.warning(f"取消所有订单过程出错: {e}，继续执行")
+        # 不再抛出异常，允许程序继续
+
+
+async def get_positions(
+        api_client: lighter.ApiClient,
+        account_index: int,
+        market_index: int
+):
+    """
+    获取持仓
+
+    Args:
+        signer_client: lighter签名客户端
+        account_index: 账户索引
+        market_index: 市场索引
+    """
+    try:
+        """Get positions using official SDK."""
+        # Use shared API client
+        account_api = lighter.AccountApi(api_client)
+
+        # Get account info
+        account_data = await account_api.account(by="index", value=str(account_index))
+
+        if not account_data or not account_data.accounts:
+            logging.log("Failed to get positions")
+            raise ValueError("Failed to get positions")
+
+        logging.log(f"Failed to get positions{account_data}")
+        return account_data.accounts[0].positions
+
+    except Exception as e:
+        logging.warning(f"获取持仓过程出错: {e}，继续执行")
         # 不再抛出异常，允许程序继续
 
 
@@ -228,7 +315,7 @@ def load_config(config_path: str) -> Dict[str, Any]:
         配置字典
     """
     import yaml
-    
+
     try:
         with open(config_path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
@@ -237,4 +324,3 @@ def load_config(config_path: str) -> Dict[str, Any]:
     except Exception as e:
         logging.error(f"加载配置文件失败: {e}")
         raise
-
