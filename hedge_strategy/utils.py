@@ -3,11 +3,13 @@
 包含市场查询、价格解析等辅助功能
 """
 
-import sys
-import os
 import asyncio
 import logging
-from typing import Optional, List, Dict, Any
+import os
+import sys
+from typing import Optional, Dict, Any
+
+from lighter import OrderBook
 
 # 添加temp_lighter到路径以导入lighter模块
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'temp_lighter'))
@@ -15,7 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'tem
 import lighter
 
 
-async def get_market_index_by_name(api_client: lighter.ApiClient, market_name: str) -> Optional[int]:
+async def get_market_index_by_name(api_client: lighter.ApiClient, market_name: str) -> Optional[OrderBook]:
     """
     根据市场名称查询对应的market_index
     
@@ -40,8 +42,9 @@ async def get_market_index_by_name(api_client: lighter.ApiClient, market_name: s
             for order_book in order_books.order_books:
                 if order_book.symbol.upper() == market_name.upper():
                     logging.info(f"找到市场 {market_name}, market_index={order_book.market_id}")
-                    return order_book.market_id
-            
+                    # return order_book.market_id
+                    return order_book
+
             logging.error(f"未找到市场: {market_name}")
             return None
             

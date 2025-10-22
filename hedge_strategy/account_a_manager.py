@@ -3,19 +3,20 @@ A账户管理器
 负责限价买单的创建和订单状态监控
 """
 
-import sys
-import os
 import asyncio
 import logging
+import os
+import sys
 import time
-from typing import Optional, Dict, Any
+from decimal import Decimal
+from typing import Dict, Any
 
 # 添加temp_lighter到路径
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'temp_lighter'))
 
 import lighter
 from redis_messenger import RedisMessenger
-from utils import get_orderbook_price_at_depth, parse_price_to_int, calculate_avg_price
+from utils import get_orderbook_price_at_depth, calculate_avg_price
 
 
 class AccountAManager:
@@ -57,7 +58,7 @@ class AccountAManager:
 
         logging.info(f"A账户管理器初始化完成: account={account_index}, market={market_index}")
 
-    async def create_limit_buy_order(self) -> bool:
+    async def create_limit_buy_order(self, base_amount_multiplier, price_multiplier) -> bool:
         """
         创建限价买单
         
@@ -87,7 +88,7 @@ class AccountAManager:
                     return False
 
                 # 转换价格为整数格式
-                price_int = parse_price_to_int(price_str)
+                price_dec = Decimal(price_str)
 
                 # 生成client_order_index（使用时间戳+随机数避免冲突）
                 # import random
@@ -100,9 +101,8 @@ class AccountAManager:
                 tx, resp, err = await self.signer_client.create_order(
                     market_index=self.market_index,
                     client_order_index=client_order_index,
-                    base_amount=self.base_amount * 10000,
-                    price=price_int,
-                    # price=1031263,
+                    base_amount=int(self.base_amount * base_amount_multiplier),
+                    price=int(price_dec * price_multiplier),
                     is_ask=False,  # 买单
                     order_type=lighter.SignerClient.ORDER_TYPE_LIMIT,
                     time_in_force=lighter.SignerClient.ORDER_TIME_IN_FORCE_GOOD_TILL_TIME,
