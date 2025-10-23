@@ -2,13 +2,14 @@
 跨账户对冲策略主程序 A
 A账户挂限价单，完全成交后通过Redis通知B账户市价对冲
 """
-
+import json
 import sys
 import os
 import asyncio
 import argparse
 import logging
 import signal
+import time
 from decimal import Decimal
 
 from lighter import ApiClient, Configuration
@@ -133,16 +134,15 @@ class HedgeStrategy:
                 poll_interval=self.config['strategy']['poll_interval']
             )
 
-            # 7. 设置Redis订阅
-            logging.info("设置Redis订阅...")
-            self.redis_messenger.subscribe(
-                RedisMessenger.CHANNEL_B_FILLED,
-                self.account_b_manager.on_a_account_filled
-            )
-            self.redis_messenger.start_listening()
+            # # 7. 设置Redis订阅
+            # logging.info("设置Redis订阅...")
+            # self.redis_messenger.subscribe(
+            #     RedisMessenger.CHANNEL_B_FILLED,
+            #     self.account_b_manager.on_a_account_filled
+            # )
+            # self.redis_messenger.start_listening()
 
             # todo 8. WS监听A账户的通知
-
 
             logging.info("初始化完成！")
 
@@ -165,15 +165,18 @@ class HedgeStrategy:
                 logging.info("=" * 60)
 
                 # 第一步 查询出活跃订单
-                logging.info("第一步 查询出活跃订单...")
+                logging.info("第一步 查询出活跃订单")
                 active_orders = await get_account_active_orders(
                     self.client_a,
                     self.config['accounts']['account_a']['account_index'],
                     self.market_index
                 )
-                print(active_orders)
+                # print(active_orders)
+                json_str = json.dumps(active_orders, default=obj_to_dict, ensure_ascii=False)
+                print(json_str)
 
                 # 第二步 查询持仓情况（如果活跃单超过1分钟不成交，则取消活跃单）
+                logging.info("第二步 查询持仓情况")
                 get_position = await get_positions(
                     self.api_client_a,
                     self.config['accounts']['account_a']['account_index'],
@@ -182,22 +185,55 @@ class HedgeStrategy:
                 print(get_position)
 
                 # 第三步 核心逻辑处理
-                    # 如果持仓不存在，活跃单不存在，则限价开多
-                    # 如果持仓不存在，活跃单存在，则不做任何处理
-                    # 如果持仓存在，活跃单不存在，则限价平多
-                    # 如果持仓存在，活跃单存在，则不做任何处理
+                # |- 如果持仓不存在，活跃单不存在，则限价开多
+                # |- 如果持仓存在，活跃单不存在，则限价平多
+                # |- 如果持仓不存在，活跃单存在，则不做任何处理
+                # |- 如果持仓存在，活跃单存在，则不做任何处理
 
-                #
-                # # 步骤1: A账户创建限价买单
-                # logging.info("[步骤1] A账户创建限价买单...")
-                # success = await self.account_a_manager.create_limit_buy_order(self.base_amount_multiplier,
-                #                                                               self.price_multiplier)
-                #
-                # if not success:
-                #     logging.warning("创建订单失败，5秒后重试...")
-                #     await asyncio.sleep(5)
-                #     continue
-                #
+                if get_position == 0 and not active_orders:
+                    """
+                        如果持仓不存在，活跃单不存在，则限价开多
+                    """
+                    # 步骤1: A账户创建限价买单
+                    logging.info("[第三步] 如果持仓不存在，活跃单不存在，则限价开多...")
+                    success = await self.account_a_manager.create_limit_buy_order(self.base_amount_multiplier,
+                                                                                  self.price_multiplier)
+                    if not success:
+                        logging.warning("创建订单失败，5秒后重试...")
+                        await asyncio.sleep(5)
+                        continue
+                elif get_position != 0 and not active_orders:
+                    """
+                       如果持仓存在，活跃单不存在，则限价平多
+                    """
+                    logging.info("[第三步] 如果持仓存在，活跃单不存在，则限价平多...")
+                    success = await self.account_a_manager.create_limit_sell_order(self.base_amount_multiplier,
+                                                                                   self.price_multiplier)
+                    if not success:
+                        logging.warning("创建订单失败，5秒后重试...")
+                        await asyncio.sleep(5)
+                        continue
+                else:
+                    """
+                        情况1：如果持仓不存在，活跃单存在，则不做任何处理
+                        情况2：如果持仓存在，活跃单存在，则不做任何处理
+                        补偿逻辑：如果活跃单超过1分钟，则取消该订单
+                    """
+                    for active_order in active_orders:
+                        created_at = active_order.additional_properties["created_at"]
+                        if int(time.time()) - created_at > self.config['lighter']['maker_order_time_out']:
+                            # 取消订单
+                            try:
+                                await self.client_a.cancel_order(
+                                    market_index=self.market_index,
+                                    order_index=active_order.order_index
+                                )
+                                logging.info(f"已取消订单: {active_order.order_index}")
+                            except Exception as e:
+                                logging.error(f"取消订单{active_order.order_index}失败: {e}")
+                        else:
+                            logging.info("不做任何处理，没有超时活跃单")
+
                 # # 步骤2: 监控订单直到完全成交
                 # logging.info("[步骤2] 监控A账户订单状态...")
                 # await self.account_a_manager.monitor_order_until_filled()
@@ -266,6 +302,11 @@ class HedgeStrategy:
         """停止策略"""
         logging.info("收到停止信号...")
         self.running = False
+
+
+# 方式1：使用 default 参数
+def obj_to_dict(obj):
+    return obj.__dict__
 
 
 async def main():

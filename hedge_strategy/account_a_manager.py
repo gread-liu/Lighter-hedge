@@ -148,6 +148,96 @@ class AccountAManager:
         logging.error(f"创建限价买单失败，已重试{max_retries}次")
         return False
 
+    async def create_limit_sell_order(self, base_amount_multiplier, price_multiplier) -> bool:
+        """
+        创建限价卖单
+
+        Returns:
+            是否创建成功
+        """
+        max_retries = 3
+        retry_count = 0
+
+        while retry_count < max_retries:
+            try:
+                # 检查是否已有活跃订单
+                if await self._has_active_orders():
+                    logging.info("A账户已有活跃订单，跳过创建")
+                    return False
+
+                # 获取卖N档价格
+                price_str = await get_orderbook_price_at_depth(
+                    self.signer_client.api_client,
+                    self.market_index,
+                    self.depth,
+                    is_bid=False
+                )
+
+                if price_str is None:
+                    logging.error("无法获取订单簿价格")
+                    return False
+
+                # 转换价格为整数格式
+                price_dec = Decimal(price_str)
+
+                # 生成client_order_index（使用时间戳+随机数避免冲突）
+                # import random
+                # client_order_index = int(time.time() * 1000) + random.randint(1, 999)
+                client_order_index = 0
+
+                # 创建限价买单
+                logging.info(f"创建限价卖单: price={price_str}, amount={self.base_amount}")
+
+                tx, resp, err = await self.signer_client.create_order(
+                    market_index=self.market_index,
+                    client_order_index=client_order_index,
+                    base_amount=int(self.base_amount * base_amount_multiplier),
+                    price=int(price_dec * price_multiplier),
+                    is_ask=True,  # 买单
+                    order_type=lighter.SignerClient.ORDER_TYPE_LIMIT,
+                    time_in_force=lighter.SignerClient.ORDER_TIME_IN_FORCE_GOOD_TILL_TIME,
+                    reduce_only=False,
+                    trigger_price=0
+                )
+
+                if err:
+                    # 检查是否是nonce错误
+                    if "invalid nonce" in str(err).lower():
+                        logging.warning(f"Nonce错误，刷新nonce管理器后重试 (尝试 {retry_count + 1}/{max_retries})")
+                        # 强制刷新nonce
+                        self.signer_client.nonce_manager.hard_refresh_nonce(self.signer_client.api_key_index)
+                        retry_count += 1
+                        await asyncio.sleep(1)  # 短暂等待
+                        continue
+                    else:
+                        logging.error(f"创建订单失败: {err}")
+                        return False
+
+                if resp.code != 200:
+                    logging.error(f"创建订单失败: code={resp.code}, msg={resp.message}")
+                    return False
+
+                # 记录客户端订单索引 - order_index由系统分配，我们使用client_order_index跟踪
+                self.current_client_order_index = client_order_index
+                logging.info(f"限价卖单创建成功: client_order_index={client_order_index}, tx_hash={resp.tx_hash}")
+
+                return True
+
+            except Exception as e:
+                if "invalid nonce" in str(e).lower():
+                    logging.warning(f"Nonce异常，刷新nonce管理器后重试 (尝试 {retry_count + 1}/{max_retries}): {e}")
+                    # 强制刷新nonce
+                    self.signer_client.nonce_manager.hard_refresh_nonce(self.signer_client.api_key_index)
+                    retry_count += 1
+                    await asyncio.sleep(1)  # 短暂等待
+                    continue
+                else:
+                    logging.error(f"创建限价买单异常: {e}")
+                    return False
+
+        logging.error(f"创建限价买单失败，已重试{max_retries}次")
+        return False
+
     async def _has_active_orders(self) -> bool:
         """
         检查是否有活跃订单

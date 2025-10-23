@@ -16,6 +16,8 @@ redis:
 
 lighter:
   base_url: "https://mainnet.zklighter.elliot.ai"
+  # 限价挂单（主要是A入口这边），超过多少时间自动取消重新挂，单位：秒
+  maker_order_time_out: 30
 
 strategy:
   retry_times: 3           # 对冲失败重试次数

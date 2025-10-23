@@ -227,8 +227,6 @@ async def get_account_active_orders(
             logging.info(f"账户{account_index}在市场{market_index}没有活跃订单")
             return
 
-        logging.info(f"发现{len(orders.orders)}个活跃订单，准备取消")
-
         return orders.orders
 
     except Exception as e:
@@ -260,8 +258,6 @@ async def get_positions(
         if not account_data or not account_data.accounts:
             logging.log("Failed to get positions")
             raise ValueError("Failed to get positions")
-
-        logging.log(f"Failed to get positions{account_data}")
 
         for position in account_data.accounts[0].positions:
             if position.market_id == market_index:
