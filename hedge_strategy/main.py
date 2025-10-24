@@ -9,6 +9,7 @@ import asyncio
 import argparse
 import logging
 import signal
+from decimal import Decimal
 
 # 添加temp_lighter到路径
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'temp_lighter'))
@@ -269,10 +270,12 @@ async def main():
     # 解析命令行参数
     parser = argparse.ArgumentParser(description='跨账户对冲策略')
     parser.add_argument('--market', type=str, required=True, help='市场名称（如 ETH, BTC, ENA）')
-    parser.add_argument('--quantity', type=int, required=True, help='挂单数量（base_amount）')
+    parser.add_argument('--quantity', type=Decimal, required=True, help='挂单数量（base_amount）')
     parser.add_argument('--depth', type=int, required=True, help='挂单档位（1表示买1/卖1）')
-    parser.add_argument('--config', type=str, default='hedge_strategy/config.yaml', help='配置文件路径')
-    
+    parser.add_argument('--config', type=str,
+                        default='/Users/liujian/Documents/workspances/Lighter-hedge/hedge_strategy/config.yaml',
+                        help='配置文件路径')
+
     args = parser.parse_args()
 
     # 创建策略实例

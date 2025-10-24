@@ -1,10 +1,12 @@
 accounts:
   account_a:
+    account_name: account_4
     api_key_private_key: ""  # 替换为实际的私钥
     account_index:               # 替换为实际的账户索引
     api_key_index: 
 
   account_b:
+    account_name: account_5
     api_key_private_key: ""  # 替换为实际的私钥
     account_index:               # 替换为实际的账户索引
     api_key_index: 
@@ -16,11 +18,13 @@ redis:
 
 lighter:
   base_url: "https://mainnet.zklighter.elliot.ai"
+  ws_url: "mainnet.zklighter.elliot.ai"  # WebSocket服务器地址（SDK会自动添加wss://和/stream）
   # 限价挂单（主要是A入口这边），超过多少时间自动取消重新挂，单位：秒
   maker_order_time_out: 30
 
 strategy:
-  retry_times: 3           # 对冲失败重试次数
+  retry_times: 50          # 对冲失败重试次数
   poll_interval: 1         # 订单状态轮询间隔(秒)
   ws_reconnect_delay: 5    # WebSocket重连延迟(秒)
+  force_close_timeout: 30  # 仓位不平衡时强制平仓超时时间(秒)
 
