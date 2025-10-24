@@ -131,18 +131,16 @@ class HedgeStrategy:
                 market_index=self.market_index,
                 base_amount=self.quantity,
                 depth=self.depth,
-                poll_interval=self.config['strategy']['poll_interval']
+                poll_interval=self.config['strategy']['poll_interval'],
+                ws_url=self.config['lighter'].get('ws_url')
             )
 
-            # # 7. 设置Redis订阅
-            # logging.info("设置Redis订阅...")
-            # self.redis_messenger.subscribe(
-            #     RedisMessenger.CHANNEL_B_FILLED,
-            #     self.account_b_manager.on_a_account_filled
-            # )
-            # self.redis_messenger.start_listening()
-
-            # todo 8. WS监听A账户的通知
+            # 7. 启动WebSocket监听A账户订单成交
+            logging.info("启动WebSocket监听A账户订单成交...")
+            self.account_a_manager.start_ws_monitoring()
+            
+            # 等待WebSocket连接建立
+            await asyncio.sleep(2)
 
             logging.info("初始化完成！")
 
