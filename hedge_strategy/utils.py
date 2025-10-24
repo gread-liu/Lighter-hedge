@@ -119,6 +119,31 @@ async def get_orderbook_price_at_depth(
     raise Exception(f"API限流严重，无法获取市场{market_index}的订单簿价格")
 
 
+async def get_orderbook(
+        api_client: lighter.ApiClient,
+        market_index: int,
+        limit: int = 10
+):
+    """
+    获取订单簿数据
+    
+    Args:
+        api_client: lighter API客户端
+        market_index: 市场索引
+        limit: 返回的档位数量
+    
+    Returns:
+        订单簿对象
+    """
+    try:
+        order_api = lighter.OrderApi(api_client)
+        order_book_orders = await order_api.order_book_orders(market_index, limit=limit)
+        return order_book_orders
+    except Exception as e:
+        logging.error(f"获取订单簿失败: {e}")
+        raise
+
+
 async def cancel_all_orders(
         signer_client: lighter.SignerClient,
         account_index: int,
@@ -240,15 +265,20 @@ async def get_positions(
         market_index: int
 ):
     """
-    获取持仓
+    获取持仓和账户权益信息
+    
+    返回: (position_size, sign, available_balance) 元组
+    - position_size: 持仓大小（绝对值）
+    - sign: 持仓方向标识 (1=多头, -1=空头, 0=无持仓)
+    - available_balance: 可用余额
 
     Args:
-        signer_client: lighter签名客户端
+        api_client: lighter API客户端
         account_index: 账户索引
         market_index: 市场索引
     """
     try:
-        """Get positions using official SDK."""
+        """Get positions and account equity using official SDK."""
         # Use shared API client
         account_api = lighter.AccountApi(api_client)
 
@@ -256,18 +286,23 @@ async def get_positions(
         account_data = await account_api.account(by="index", value=str(account_index))
 
         if not account_data or not account_data.accounts:
-            logging.log("Failed to get positions")
-            raise ValueError("Failed to get positions")
+            logging.warning("Failed to get positions")
+            return Decimal(0), 0, None
 
-        for position in account_data.accounts[0].positions:
+        account = account_data.accounts[0]
+        available_balance = account.available_balance  # 获取可用余额
+
+        for position in account.positions:
             if position.market_id == market_index:
-                return Decimal(position.position)
+                # 返回持仓大小、sign标识和可用余额
+                # sign: 1=多头, -1=空头
+                return Decimal(position.position), position.sign, available_balance
 
-        return Decimal(0)
+        return Decimal(0), 0, available_balance
 
     except Exception as e:
         logging.warning(f"获取持仓过程出错: {e}，继续执行")
-        # 不再抛出异常，允许程序继续
+        return Decimal(0), 0, None
 
 
 def parse_price_to_int(price_str: str) -> int:

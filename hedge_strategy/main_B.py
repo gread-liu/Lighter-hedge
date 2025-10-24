@@ -1,6 +1,6 @@
 """
-跨账户对冲策略主程序
-A账户挂限价单，完全成交后通过Redis通知B账户市价对冲
+跨账户对冲策略主程序 B
+B账户订阅Redis消息，收到A账户成交通知后执行市价对冲
 """
 
 import sys
@@ -11,12 +11,13 @@ import logging
 import signal
 from decimal import Decimal
 
+from lighter import ApiClient, Configuration
+
 # 添加temp_lighter到路径
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), 'temp_lighter'))
 
 import lighter
 from redis_messenger import RedisMessenger
-from account_a_manager import AccountAManager
 from account_b_manager import AccountBManager
 from utils import (
     load_config,
@@ -25,36 +26,33 @@ from utils import (
 )
 
 
-class HedgeStrategy:
-    """跨账户对冲策略"""
+class HedgeStrategyB:
+    """跨账户对冲策略 - B入口（订阅和对冲）"""
 
-    def __init__(self, config_path: str, market_name: str, quantity: int, depth: int):
+    def __init__(self, config_path: str, market_name: str):
         """
         初始化策略
         
         Args:
             config_path: 配置文件路径
             market_name: 市场名称（如 ETH, BTC, ENA）
-            quantity: 挂单数量
-            depth: 挂单档位
         """
         self.config_path = config_path
         self.market_name = market_name
-        self.quantity = quantity
-        self.depth = depth
 
         self.config = None
         self.market_index = None
 
         self.redis_messenger = None
-        self.client_a = None
         self.client_b = None
-        self.account_a_manager = None
+        self.api_client_b = None
         self.account_b_manager = None
         self.base_amount_multiplier = None
         self.price_multiplier = None
 
         self.running = False
+        self._position_sync_running = False  # 持仓同步线程标志位
+        self.position_sync_thread = None  # 持仓同步线程
 
         # 设置日志
         logging.basicConfig(
@@ -64,8 +62,8 @@ class HedgeStrategy:
         )
 
         logging.info("=" * 60)
-        logging.info("跨账户对冲策略启动")
-        logging.info(f"市场: {market_name}, 数量: {quantity}, 档位: {depth}")
+        logging.info("跨账户对冲策略B启动 - 订阅模式")
+        logging.info(f"市场: {market_name}")
         logging.info("=" * 60)
 
     async def initialize(self):
@@ -78,24 +76,18 @@ class HedgeStrategy:
             # 2. 初始化Redis
             logging.info("初始化Redis连接...")
             redis_config = self.config['redis']
+            account_a_name = self.config['accounts']['account_a'].get('account_name', 'account_a')
+            account_b_name = self.config['accounts']['account_b'].get('account_name', 'account_b')
             self.redis_messenger = RedisMessenger(
                 host=redis_config['host'],
                 port=redis_config['port'],
-                db=redis_config['db']
+                db=redis_config['db'],
+                account_a_name=account_a_name,
+                account_b_name=account_b_name
             )
             self.redis_messenger.connect()
 
-            # 3. 初始化A账户客户端
-            logging.info("初始化A账户...")
-            account_a_config = self.config['accounts']['account_a']
-            self.client_a = lighter.SignerClient(
-                url=self.config['lighter']['base_url'],
-                private_key=account_a_config['api_key_private_key'],
-                account_index=account_a_config['account_index'],
-                api_key_index=account_a_config['api_key_index']
-            )
-
-            # 4. 初始化B账户客户端
+            # 3. 初始化B账户客户端
             logging.info("初始化B账户...")
             account_b_config = self.config['accounts']['account_b']
             self.client_b = lighter.SignerClient(
@@ -104,11 +96,12 @@ class HedgeStrategy:
                 account_index=account_b_config['account_index'],
                 api_key_index=account_b_config['api_key_index']
             )
+            self.api_client_b = ApiClient(configuration=Configuration(host=self.config['lighter']['base_url']))
 
-            # 5. 查询市场索引
+            # 4. 查询市场索引
             logging.info(f"查询市场索引: {self.market_name}...")
             orderBook = await get_market_index_by_name(
-                self.client_a.api_client,
+                self.client_b.api_client,
                 self.market_name
             )
             self.market_index = orderBook.market_id
@@ -118,94 +111,67 @@ class HedgeStrategy:
             if self.market_index is None:
                 raise Exception(f"未找到市场: {self.market_name}")
 
-            # 6. 取消历史挂单
+            # 5. 取消历史挂单
             logging.info("清理历史挂单...")
-            await cancel_all_orders(
-                self.client_a,
-                account_a_config['account_index'],
-                self.market_index
-            )
             await cancel_all_orders(
                 self.client_b,
                 account_b_config['account_index'],
                 self.market_index
             )
 
-            # 7. 初始化A账户管理器
-            logging.info("初始化A账户管理器...")
-            self.account_a_manager = AccountAManager(
-                signer_client=self.client_a,
-                redis_messenger=self.redis_messenger,
-                account_index=account_a_config['account_index'],
-                market_index=self.market_index,
-                base_amount=self.quantity,
-                depth=self.depth,
-                poll_interval=self.config['strategy']['poll_interval']
-            )
-
-            # 8. 初始化B账户管理器
+            # 6. 初始化B账户管理器
             logging.info("初始化B账户管理器...")
             self.account_b_manager = AccountBManager(
                 signer_client=self.client_b,
                 redis_messenger=self.redis_messenger,
                 account_index=account_b_config['account_index'],
+                base_amount_multiplier=self.base_amount_multiplier,
+                price_multiplier=self.price_multiplier,
                 retry_times=self.config['strategy']['retry_times']
             )
+            
+            # 设置事件循环
+            self.account_b_manager.set_event_loop(asyncio.get_event_loop())
 
-            # 9. 设置Redis订阅
+            # 7. 设置Redis订阅 - B入口只订阅A账户的成交消息
             logging.info("设置Redis订阅...")
+            # 使用实例的channel,而不是类变量
             self.redis_messenger.subscribe(
-                RedisMessenger.CHANNEL_A_FILLED,
+                self.redis_messenger.CHANNEL_A_FILLED,
                 self.account_b_manager.on_a_account_filled
-            )
-            self.redis_messenger.subscribe(
-                RedisMessenger.CHANNEL_B_FILLED,
-                self.account_a_manager.on_b_account_filled
             )
             self.redis_messenger.start_listening()
 
-            logging.info("初始化完成！")
+            # 8. 启动持仓同步定时任务
+            logging.info("启动B账户持仓同步定时任务...")
+            self._start_position_sync()
+            
+            logging.info("初始化完成！B账户开始监听A账户成交消息...")
 
         except Exception as e:
             logging.error(f"初始化失败: {e}")
             raise
 
     async def run(self):
-        """运行策略主循环"""
+        """运行策略主循环 - B入口只需要保持监听状态"""
         self.running = True
         self.account_b_manager.start_listening()
 
-        cycle_count = 0
-
         try:
+            logging.info("B账户进入监听模式，等待A账户成交通知...")
+            
+            # B入口的主循环只需要保持运行状态，实际的对冲逻辑由Redis回调触发
             while self.running:
-                cycle_count += 1
-                logging.info("")
-                logging.info("=" * 60)
-                logging.info(f"开始第 {cycle_count} 轮循环")
-                logging.info("=" * 60)
-
-                # 步骤1: A账户创建限价买单
-                logging.info("[步骤1] A账户创建限价买单...")
-                success = await self.account_a_manager.create_limit_buy_order(self.base_amount_multiplier,
-                                                                              self.price_multiplier)
-
-                if not success:
-                    logging.warning("创建订单失败，5秒后重试...")
-                    await asyncio.sleep(5)
-                    continue
-
-                # 步骤2: 监控订单直到完全成交
-                logging.info("[步骤2] 监控A账户订单状态...")
-                await self.account_a_manager.monitor_order_until_filled()
-
-                # 步骤3: 等待B账户对冲完成
-                logging.info("[步骤3] 等待B账户对冲完成...")
-                await self.account_a_manager.wait_for_b_filled(timeout=300)
-
-                # 步骤4: 准备下一轮
-                logging.info(f"第 {cycle_count} 轮完成，准备下一轮...")
-                await asyncio.sleep(2)  # 短暂休息
+                # 定期检查连接状态
+                await asyncio.sleep(10)
+                
+                # 可以在这里添加健康检查逻辑
+                if not self.redis_messenger._running:
+                    logging.warning("Redis连接断开，尝试重新连接...")
+                    try:
+                        self.redis_messenger.start_listening()
+                    except Exception as e:
+                        logging.error(f"重新连接Redis失败: {e}")
 
         except Exception as e:
             logging.error(f"策略运行异常: {e}")
@@ -220,21 +186,10 @@ class HedgeStrategy:
 
         try:
             # 停止监控
-            if self.account_a_manager:
-                self.account_a_manager.stop_monitoring()
-
             if self.account_b_manager:
                 self.account_b_manager.stop_listening()
 
             # 取消所有挂单
-            if self.client_a and self.market_index:
-                logging.info("取消A账户挂单...")
-                await cancel_all_orders(
-                    self.client_a,
-                    self.config['accounts']['account_a']['account_index'],
-                    self.market_index
-                )
-
             if self.client_b and self.market_index:
                 logging.info("取消B账户挂单...")
                 await cancel_all_orders(
@@ -248,9 +203,6 @@ class HedgeStrategy:
                 self.redis_messenger.close()
 
             # 关闭API客户端
-            if self.client_a:
-                await self.client_a.close()
-
             if self.client_b:
                 await self.client_b.close()
 
@@ -263,15 +215,68 @@ class HedgeStrategy:
         """停止策略"""
         logging.info("收到停止信号...")
         self.running = False
+        self._position_sync_running = False  # 停止持仓同步线程
+    
+    def _start_position_sync(self):
+        """启动B账户持仓同步定时任务"""
+        import threading
+        import time
+        from utils import get_positions
+        
+        # 设置标志位,让持仓同步线程可以运行
+        self._position_sync_running = True
+        
+        # 保存主事件循环的引用
+        main_loop = asyncio.get_event_loop()
+        
+        def sync_positions():
+            """定时同步B账户持仓到Redis"""
+            # 持仓同步线程使用独立的标志位
+            while self._position_sync_running:
+                try:
+                    # 使用asyncio.run_coroutine_threadsafe将协程提交到主事件循环
+                    future = asyncio.run_coroutine_threadsafe(
+                        get_positions(
+                            self.api_client_b,
+                            self.config['accounts']['account_b']['account_index'],
+                            self.market_index
+                        ),
+                        main_loop
+                    )
+                    
+                    # 等待结果(最多10秒超时)
+                    position_size, sign, available_balance = future.result(timeout=10)
+                    
+                    # 更新到Redis
+                    account_b_name = self.config['accounts']['account_b'].get('account_name', 'account_b')
+                    account_b_index = self.config['accounts']['account_b']['account_index']
+                    
+                    logging.info(f"同步B账户持仓: size={position_size}, sign={sign}")
+                    self.redis_messenger.update_position(
+                        account_name=account_b_name,
+                        account_index=account_b_index,
+                        market=self.market_name,
+                        position_size=position_size,
+                        sign=sign,
+                        available_balance=available_balance
+                    )
+                    
+                except Exception as e:
+                    logging.error(f"同步B账户持仓失败: {e}")
+                
+                # 等待5秒
+                time.sleep(5)
+        
+        self.position_sync_thread = threading.Thread(target=sync_positions, daemon=True)
+        self.position_sync_thread.start()
+        logging.info("B账户持仓同步线程已启动（每5秒同步一次）")
 
 
 async def main():
     """主函数"""
     # 解析命令行参数
-    parser = argparse.ArgumentParser(description='跨账户对冲策略')
+    parser = argparse.ArgumentParser(description='跨账户对冲策略 - B入口（订阅模式）')
     parser.add_argument('--market', type=str, required=True, help='市场名称（如 ETH, BTC, ENA）')
-    parser.add_argument('--quantity', type=Decimal, required=True, help='挂单数量（base_amount）')
-    parser.add_argument('--depth', type=int, required=True, help='挂单档位（1表示买1/卖1）')
     parser.add_argument('--config', type=str,
                         default='/Users/liujian/Documents/workspances/Lighter-hedge/hedge_strategy/config.yaml',
                         help='配置文件路径')
@@ -279,11 +284,9 @@ async def main():
     args = parser.parse_args()
 
     # 创建策略实例
-    strategy = HedgeStrategy(
+    strategy = HedgeStrategyB(
         config_path=args.config,
-        market_name=args.market,
-        quantity=args.quantity,
-        depth=args.depth
+        market_name=args.market
     )
 
     # 设置信号处理

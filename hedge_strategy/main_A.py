@@ -83,10 +83,14 @@ class HedgeStrategy:
             # 2. 初始化Redis
             logging.info("初始化Redis连接...")
             redis_config = self.config['redis']
+            account_a_name = self.config['accounts']['account_a'].get('account_name', 'account_a')
+            account_b_name = self.config['accounts']['account_b'].get('account_name', 'account_b')
             self.redis_messenger = RedisMessenger(
                 host=redis_config['host'],
                 port=redis_config['port'],
-                db=redis_config['db']
+                db=redis_config['db'],
+                account_a_name=account_a_name,
+                account_b_name=account_b_name
             )
             self.redis_messenger.connect()
 
@@ -162,6 +166,12 @@ class HedgeStrategy:
                 logging.info(f"开始第 {cycle_count} 轮循环")
                 logging.info("=" * 60)
 
+                # 检查是否需要暂停交易
+                if self.account_a_manager.pause_trading:
+                    logging.error("⚠️ 交易已暂停（B账户对冲失败），等待人工处理...")
+                    await asyncio.sleep(10)
+                    continue
+
                 # 第一步 查询出活跃订单
                 logging.info("第一步 查询出活跃订单")
                 active_orders = await get_account_active_orders(
@@ -175,12 +185,39 @@ class HedgeStrategy:
 
                 # 第二步 查询持仓情况（如果活跃单超过1分钟不成交，则取消活跃单）
                 logging.info("第二步 查询持仓情况")
-                get_position = await get_positions(
+                position_size, sign, available_balance = await get_positions(
                     self.api_client_a,
                     self.config['accounts']['account_a']['account_index'],
                     self.market_index
                 )
-                print(get_position)
+                logging.info(f"持仓情况: size={position_size}, sign={sign}")
+                
+                # 同步持仓到Redis
+                account_a_name = self.config['accounts']['account_a'].get('account_name', 'account_a')
+                account_a_index = self.config['accounts']['account_a']['account_index']
+                self.redis_messenger.update_position(
+                    account_name=account_a_name,
+                    account_index=account_a_index,
+                    market=self.market_name,
+                    position_size=position_size,
+                    sign=sign,
+                    available_balance=available_balance
+                )
+                
+                # 验证对冲状态：检查A和B账户持仓是否正确对冲
+                hedge_valid, hedge_message = self._check_hedge_status()
+                if not hedge_valid:
+                    logging.warning(f"⚠️ 对冲状态异常: {hedge_message}")
+                    # 如果持仓超过配置的超时时间未对冲，执行全部平仓
+                    force_close_timeout = self.config['strategy'].get('force_close_timeout', 30)
+                    if f"超过{force_close_timeout}秒" in hedge_message:
+                        logging.error(f"❌ 持仓超过{force_close_timeout}秒未对冲，执行全部平仓！")
+                        await self._emergency_close_all_positions()
+                        await asyncio.sleep(10)
+                        continue
+                    # 如果对冲不匹配但未超时，等待下一轮检查
+                    await asyncio.sleep(5)
+                    continue
 
                 # 第三步 核心逻辑处理
                 # |- 如果持仓不存在，活跃单不存在，则限价开多
@@ -188,29 +225,45 @@ class HedgeStrategy:
                 # |- 如果持仓不存在，活跃单存在，则不做任何处理
                 # |- 如果持仓存在，活跃单存在，则不做任何处理
 
-                if get_position == 0 and not active_orders:
+                if position_size == 0 and not active_orders:
                     """
                         如果持仓不存在，活跃单不存在，则限价开多
                     """
                     # 步骤1: A账户创建限价买单
                     logging.info("[第三步] 如果持仓不存在，活跃单不存在，则限价开多...")
-                    success = await self.account_a_manager.create_limit_buy_order(self.base_amount_multiplier,
-                                                                                  self.price_multiplier)
+                    success = await self.account_a_manager.create_limit_buy_order(
+                        self.base_amount_multiplier,
+                        self.price_multiplier,
+                        active_orders  # 传递已查询的活跃订单
+                    )
                     if not success:
                         logging.warning("创建订单失败，5秒后重试...")
                         await asyncio.sleep(5)
                         continue
-                elif get_position != 0 and not active_orders:
+                    
+                elif position_size > 0 and sign == 1 and not active_orders:
                     """
-                       如果持仓存在，活跃单不存在，则限价平多
+                       如果持仓存在且是多头，活跃单不存在，则限价平多
                     """
-                    logging.info("[第三步] 如果持仓存在，活跃单不存在，则限价平多...")
-                    success = await self.account_a_manager.create_limit_sell_order(self.base_amount_multiplier,
-                                                                                   self.price_multiplier)
+                    logging.info("[第三步] 如果持仓存在且是多头，活跃单不存在，则限价平多...")
+                    success = await self.account_a_manager.create_limit_sell_order(
+                        self.base_amount_multiplier,
+                        self.price_multiplier,
+                        active_orders  # 传递已查询的活跃订单
+                    )
                     if not success:
                         logging.warning("创建订单失败，5秒后重试...")
                         await asyncio.sleep(5)
                         continue
+                    
+                elif position_size > 0 and sign == -1:
+                    """
+                       如果持仓是空头，这是异常情况，记录错误
+                    """
+                    logging.error(f"⚠️ 异常：A账户出现空头持仓！size={position_size}, sign={sign}")
+                    logging.error("A账户只应该有多头持仓，请人工检查并清空持仓！")
+                    await asyncio.sleep(10)
+                    continue
                 else:
                     """
                         情况1：如果持仓不存在，活跃单存在，则不做任何处理
@@ -232,16 +285,7 @@ class HedgeStrategy:
                         else:
                             logging.info("不做任何处理，没有超时活跃单")
 
-                # # 步骤2: 监控订单直到完全成交
-                # logging.info("[步骤2] 监控A账户订单状态...")
-                # await self.account_a_manager.monitor_order_until_filled()
-                #
-                # # 步骤3: 等待B账户对冲完成
-                # logging.info("[步骤3] 等待B账户对冲完成...")
-                # await self.account_a_manager.wait_for_b_filled(timeout=300)
-                #
-                # # 步骤4: 准备下一轮
-                # logging.info(f"第 {cycle_count} 轮完成，准备下一轮...")
+
                 await asyncio.sleep(5)  # 短暂休息
 
         except Exception as e:
@@ -259,6 +303,7 @@ class HedgeStrategy:
             # 停止监控
             if self.account_a_manager:
                 self.account_a_manager.stop_monitoring()
+                self.account_a_manager.stop_ws_monitoring()
 
             if self.account_b_manager:
                 self.account_b_manager.stop_listening()
@@ -296,6 +341,208 @@ class HedgeStrategy:
         except Exception as e:
             logging.error(f"清理资源失败: {e}")
 
+    def _check_hedge_status(self) -> tuple[bool, str]:
+        """
+        检查A和B账户的对冲状态
+        
+        Returns:
+            (是否对冲正常, 状态消息)
+        """
+        try:
+            import time
+            
+            # 从Redis获取A和B账户持仓
+            account_a_name = self.config['accounts']['account_a'].get('account_name', 'account_a')
+            account_b_name = self.config['accounts']['account_b'].get('account_name', 'account_b')
+            pos_a = self.redis_messenger.get_position_by_account_name(account_a_name, self.market_name)
+            pos_b = self.redis_messenger.get_position_by_account_name(account_b_name, self.market_name)
+            
+            if not pos_a or not pos_b:
+                return True, "持仓信息未同步到Redis，跳过检查"
+            
+            size_a = pos_a.get("size", 0)
+            sign_a = pos_a.get("sign", 0)
+            timestamp_a = pos_a.get("timestamp", 0)
+            
+            size_b = pos_b.get("size", 0)
+            sign_b = pos_b.get("sign", 0)
+            timestamp_b = pos_b.get("timestamp", 0)
+            
+            # 如果两个账户都没有持仓，认为对冲正常
+            if size_a == 0 and size_b == 0:
+                return True, "两个账户都无持仓"
+            
+            # 获取强制平仓超时配置
+            force_close_timeout = self.config['strategy'].get('force_close_timeout', 30)
+            
+            # 检查持仓大小是否相等
+            if abs(size_a - size_b) > 0.00001:  # 允许微小误差
+                # 检查持仓时间，如果超过配置的超时时间，需要平仓
+                current_time = time.time()
+                max_timestamp = max(timestamp_a, timestamp_b)
+                if current_time - max_timestamp > force_close_timeout:
+                    return False, f"持仓大小不匹配且超过{force_close_timeout}秒: A={size_a}, B={size_b}"
+                return False, f"持仓大小不匹配: A={size_a}, B={size_b}"
+            
+            # 检查持仓方向是否相反
+            if sign_a != 0 and sign_b != 0 and sign_a == sign_b:
+                # 检查持仓时间
+                current_time = time.time()
+                max_timestamp = max(timestamp_a, timestamp_b)
+                if current_time - max_timestamp > force_close_timeout:
+                    return False, f"持仓方向相同且超过{force_close_timeout}秒: A={sign_a}, B={sign_b}"
+                return False, f"持仓方向相同（应该相反）: A={sign_a}, B={sign_b}"
+            
+            # 对冲正常
+            return True, f"对冲正常: A={size_a}({sign_a}), B={size_b}({sign_b})"
+            
+        except Exception as e:
+            logging.error(f"检查对冲状态异常: {e}")
+            return True, f"检查异常，跳过: {e}"
+    
+    async def _emergency_close_all_positions(self):
+        """
+        紧急平仓：智能决定平仓策略
+        
+        策略：
+        1. 只有A有仓位: 取消A的活动单 + 平A的仓位
+        2. A和B都有仓位: 取消A的活动单 + 平A的仓位 + 平B的仓位
+        """
+        try:
+            logging.error("=" * 60)
+            logging.error("执行紧急平仓操作")
+            logging.error("=" * 60)
+            
+            # 获取A和B账户持仓
+            account_a_name = self.config['accounts']['account_a'].get('account_name', 'account_a')
+            account_b_name = self.config['accounts']['account_b'].get('account_name', 'account_b')
+            pos_a = self.redis_messenger.get_position_by_account_name(account_a_name, self.market_name)
+            pos_b = self.redis_messenger.get_position_by_account_name(account_b_name, self.market_name)
+            
+            if not pos_a or not pos_b:
+                logging.error("无法获取持仓信息，请手动执行清仓脚本")
+                logging.error("⚠️ 请手动执行: python3 hedge_strategy/quick_clear_all.py")
+                return
+            
+            size_a = abs(pos_a.get("size", 0))
+            size_b = abs(pos_b.get("size", 0))
+            
+            logging.info(f"A账户持仓: {size_a}, B账户持仓: {size_b}")
+            
+            # 第一步：取消A账户所有活跃订单
+            logging.info("取消A账户所有活跃订单...")
+            await cancel_all_orders(
+                self.client_a,
+                self.config['accounts']['account_a']['account_index'],
+                self.market_index
+            )
+            logging.info("A账户活跃订单已取消")
+            
+            # 第二步：判断平仓策略
+            if size_a > 0 and size_b == 0:
+                # 情况1: 只有A有仓位，直接平A
+                logging.info(f"只有A账户有仓位({size_a})，平A账户")
+                await self._close_account_a_position()
+            elif size_a > 0 and size_b > 0:
+                # 情况2: A和B都有仓位，两边都平
+                logging.info(f"A和B都有仓位(A={size_a}, B={size_b})，两边都平")
+                await self._close_account_a_position()
+                await self._send_close_signal_to_b()
+            elif size_a == 0 and size_b > 0:
+                # 情况3: 只有B有仓位，只平B
+                logging.info(f"只有B账户有仓位({size_b})，平B账户")
+                await self._send_close_signal_to_b()
+            
+            logging.error("=" * 60)
+            
+        except Exception as e:
+            logging.error(f"紧急平仓失败: {e}")
+    
+    async def _close_account_a_position(self):
+        """平掉A账户持仓"""
+        try:
+            from utils import get_positions, get_orderbook
+            from decimal import Decimal
+            import random
+            
+            position_size, sign, _ = await get_positions(
+                self.api_client_a,
+                self.config['accounts']['account_a']['account_index'],
+                self.market_index
+            )
+            
+            if position_size == 0:
+                logging.info("A账户无持仓，无需平仓")
+                return
+            
+            logging.info(f"开始平A账户持仓: size={position_size}, sign={sign}")
+            
+            # 获取当前市场价格
+            orderbook = await get_orderbook(self.api_client_a, self.market_index)
+            
+            # 根据持仓方向确定平仓方向和价格
+            # 参考B账户的逻辑,使用5%滑点容忍度确保市价单成交
+            slippage_tolerance = Decimal('0.05')
+            
+            if sign == 1:
+                # 平多头，需要卖出，使用买一价并下调5%
+                is_ask = True
+                price_dec = Decimal(str(orderbook.bids[0].price))
+                base_price = int(price_dec * self.price_multiplier)
+                avg_execution_price = int(base_price * (Decimal('1') - slippage_tolerance))
+                logging.info(f"平多头: 卖出, 基准价={price_dec}, 执行价={avg_execution_price}")
+            else:
+                # 平空头，需要买入，使用卖一价并上浮5%
+                is_ask = False
+                price_dec = Decimal(str(orderbook.asks[0].price))
+                base_price = int(price_dec * self.price_multiplier)
+                avg_execution_price = int(base_price * (Decimal('1') + slippage_tolerance))
+                logging.info(f"平空头: 买入, 基准价={price_dec}, 执行价={avg_execution_price}")
+            
+            # 生成client_order_index
+            client_order_index = int(time.time() * 1000) + random.randint(1, 999)
+            
+            # 使用create_market_order方法下市价单
+            tx, resp, err = await self.client_a.create_market_order(
+                market_index=self.market_index,
+                client_order_index=client_order_index,
+                base_amount=int(position_size * self.base_amount_multiplier),
+                avg_execution_price=avg_execution_price,
+                is_ask=is_ask,
+                reduce_only=True  # 平仓单
+            )
+            
+            if err:
+                logging.error(f"A账户平仓订单失败: {err}")
+                return
+            
+            if resp and resp.code == 200:
+                logging.info(f"✅ A账户平仓订单已提交: tx_hash={resp.tx_hash}")
+            else:
+                logging.error(f"A账户平仓订单失败: code={resp.code if resp else 'None'}")
+            
+        except Exception as e:
+            logging.error(f"平A账户持仓失败: {e}")
+    
+    async def _send_close_signal_to_b(self):
+        """通过Redis发送平仓信号给B账户"""
+        try:
+            logging.info("发送平仓信号给B账户...")
+            
+            # 发布平仓信号到Redis
+            close_message = {
+                "action": "close_all",
+                "market": self.market_name,
+                "market_index": self.market_index,
+                "timestamp": int(time.time())
+            }
+            
+            self.redis_messenger.publish_a_filled(close_message)
+            logging.info(f"已发送平仓信号: {close_message}")
+            
+        except Exception as e:
+            logging.error(f"发送平仓信号失败: {e}")
+    
     def stop(self):
         """停止策略"""
         logging.info("收到停止信号...")

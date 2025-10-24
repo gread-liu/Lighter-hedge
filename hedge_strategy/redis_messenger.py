@@ -13,10 +13,12 @@ import threading
 class RedisMessenger:
     """Redis消息管理器，基于Pub/Sub模式"""
     
-    CHANNEL_A_FILLED = "hedge:account_a_filled"
+    CHANNEL_A_FILLED = "hedge:account_a_filled"  # 默认值，将被动态设置
     CHANNEL_B_FILLED = "hedge:account_b_filled"
+    POSITIONS_KEY_PREFIX = "hedge:positions"  # 持仓key前缀
     
-    def __init__(self, host: str = "localhost", port: int = 6379, db: int = 0):
+    def __init__(self, host: str = "localhost", port: int = 6379, db: int = 0,
+                 account_a_name: str = None, account_b_name: str = None):
         """
         初始化Redis连接
         
@@ -24,6 +26,8 @@ class RedisMessenger:
             host: Redis服务器地址
             port: Redis端口
             db: Redis数据库编号
+            account_a_name: A账户名称（用于构建channel和key名称）
+            account_b_name: B账户名称（用于构建channel和key名称）
         """
         self.host = host
         self.port = port
@@ -32,6 +36,17 @@ class RedisMessenger:
         self.pubsub = None
         self.subscriber_thread = None
         self._running = False
+        
+        # 保存账户名称用于构建key
+        self.account_a_name = account_a_name
+        self.account_b_name = account_b_name
+        
+        # 动态设置channel名称
+        if account_a_name and account_b_name:
+            self.CHANNEL_A_FILLED = f"hedge:{account_a_name}_to_{account_b_name}"
+            logging.info(f"使用自定义channel: {self.CHANNEL_A_FILLED}")
+        else:
+            logging.info(f"使用默认channel: {self.CHANNEL_A_FILLED}")
         
         logging.info(f"初始化Redis连接: {host}:{port}/{db}")
     
@@ -62,10 +77,10 @@ class RedisMessenger:
     
     def publish_b_filled(self, message_data: Dict[str, Any]):
         """
-        发布B账户成交消息
+        发布B账户对冲结果消息（成功或失败）
         
         Args:
-            message_data: 消息数据字典
+            message_data: 消息数据字典，包含status字段（"success"或"failed"）
         """
         self._publish(self.CHANNEL_B_FILLED, message_data)
     
@@ -182,4 +197,168 @@ class RedisMessenger:
             "timestamp": int(time.time()),
             "side": side
         }
+    
+    def update_position(self, account_name: str, account_index: int, market: str,
+                       position_size: float, sign: int, available_balance: str = None):
+        """
+        更新账户持仓到Redis
+        
+        新的Hash结构：
+        - Key: hedge:positions:{account_a_name}_{account_b_name}:{market}
+        - 例如: hedge:positions:account_4_account_5:BTC
+        - Type: Hash
+        - Fields:
+          - {account_name}: JSON字符串,包含该账户的持仓信息
+        
+        数据结构示例:
+        {
+          "account_name": "account_4",
+          "account_index": 280459,
+          "size": 0.0002,
+          "sign": 1,
+          "direction": "long",
+          "timestamp": 1761290287,
+          "market": "BTC",
+          "available_balance": "25.631906"
+        }
+        
+        智能时间戳逻辑：
+        - 如果持仓大小和方向都没变，保留原时间戳（仓位创建时间）
+        - 如果持仓发生变化，更新时间戳为当前时间
+        
+        Args:
+            account_name: 账户名称 (例如: "account_4", "account_5")
+            account_index: 账户索引
+            market: 市场名称 ("BTC" 或 "ETH")
+            position_size: 持仓大小
+            sign: 持仓方向 (1=多头, -1=空头)
+            available_balance: 可用余额 (可选)
+        """
+        try:
+            import time
+            from decimal import Decimal
+            
+            # 转换Decimal为float
+            if isinstance(position_size, Decimal):
+                position_size = float(position_size)
+            
+            # 构建Redis key: hedge:positions:account_4_account_5:BTC
+            if self.account_a_name and self.account_b_name:
+                redis_key = f"{self.POSITIONS_KEY_PREFIX}:{self.account_a_name}_{self.account_b_name}:{market.upper()}"
+            else:
+                # 向后兼容
+                redis_key = f"{self.POSITIONS_KEY_PREFIX}:{market.upper()}"
+            
+            # 获取现有持仓数据
+            existing_position = self.get_position_by_account_name(account_name, market)
+            
+            # 判断持仓是否发生变化
+            if existing_position:
+                existing_size = existing_position.get("size", 0)
+                existing_sign = existing_position.get("sign", 0)
+                existing_timestamp = existing_position.get("timestamp", int(time.time()))
+                
+                # 如果持仓大小和方向都没变，保留原时间戳
+                if existing_size == position_size and existing_sign == sign:
+                    timestamp = existing_timestamp
+                else:
+                    # 持仓发生变化，更新时间戳
+                    timestamp = int(time.time())
+            else:
+                # 首次创建持仓记录
+                timestamp = int(time.time())
+            
+            # 构建持仓数据
+            position_dict = {
+                "account_name": account_name,
+                "account_index": account_index,
+                "size": position_size,
+                "sign": sign,
+                "direction": "long" if sign == 1 else "short" if sign == -1 else "none",
+                "timestamp": timestamp,
+                "market": market.upper()
+            }
+            
+            # 如果提供了可用余额,添加到数据中
+            if available_balance is not None:
+                position_dict["available_balance"] = available_balance
+            
+            position_data = json.dumps(position_dict)
+            
+            # 使用Hash结构存储: HSET hedge:positions:BTC account_4 {...}
+            self.redis_client.hset(redis_key, account_name, position_data)
+            logging.debug(f"更新持仓到Redis: HSET {redis_key} {account_name} = {position_data}")
+        except Exception as e:
+            logging.error(f"更新持仓到Redis失败: {e}")
+    
+    def get_position_by_account_name(self, account_name: str, market: str) -> Optional[Dict[str, Any]]:
+        """
+        从Redis获取指定账户的持仓
+        
+        Args:
+            account_name: 账户名称 (例如: "account_4", "account_5")
+            market: 市场名称 ("BTC" 或 "ETH")
+        
+        Returns:
+            持仓数据字典或None
+        """
+        try:
+            # 构建Redis key: hedge:positions:account_4_account_5:BTC
+            if self.account_a_name and self.account_b_name:
+                redis_key = f"{self.POSITIONS_KEY_PREFIX}:{self.account_a_name}_{self.account_b_name}:{market.upper()}"
+            else:
+                # 向后兼容
+                redis_key = f"{self.POSITIONS_KEY_PREFIX}:{market.upper()}"
+            
+            position_json = self.redis_client.hget(redis_key, account_name)
+            if position_json:
+                return json.loads(position_json)
+            return None
+        except Exception as e:
+            logging.error(f"从Redis获取持仓失败: {e}")
+            return None
+    
+    def get_position(self, account: str, market: str) -> Optional[Dict[str, Any]]:
+        """
+        从Redis获取账户持仓 (兼容旧接口)
+        
+        Args:
+            account: 账户标识 ("account_a" 或 "account_b")
+            market: 市场名称 ("BTC" 或 "ETH")
+        
+        Returns:
+            持仓数据字典或None
+        """
+        # 这个方法保留用于向后兼容,但实际使用account_name
+        # 需要从配置中获取account_name,这里暂时返回None
+        logging.warning(f"get_position方法已废弃,请使用get_position_by_account_name")
+        return None
+    
+    def get_all_positions(self, market: str) -> Dict[str, Any]:
+        """
+        获取指定市场的所有账户持仓
+        
+        Args:
+            market: 市场名称 ("BTC" 或 "ETH")
+        
+        Returns:
+            所有持仓数据字典,key为account_name
+        """
+        try:
+            # 构建Redis key: hedge:positions:account_4_account_5:BTC
+            if self.account_a_name and self.account_b_name:
+                redis_key = f"{self.POSITIONS_KEY_PREFIX}:{self.account_a_name}_{self.account_b_name}:{market.upper()}"
+            else:
+                # 向后兼容
+                redis_key = f"{self.POSITIONS_KEY_PREFIX}:{market.upper()}"
+            
+            # 获取Hash中的所有字段
+            all_positions = self.redis_client.hgetall(redis_key)
+            result = {}
+            for account_name, position_json in all_positions.items():
+                result[account_name] = json.loads(position_json)
+            return result
+        except Exception as e:
+            logging.error(f"从Redis获取所有持仓失败: {e}")
+            return {}
 

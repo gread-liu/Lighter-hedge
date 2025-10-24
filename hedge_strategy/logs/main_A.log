@@ -1,0 +1,1645 @@
+DEBUG:asyncio:Using selector: KqueueSelector
+INFO:root:============================================================
+INFO:root:跨账户对冲策略启动
+INFO:root:市场: BTC, 数量: 0.0002, 档位: 60
+INFO:root:============================================================
+INFO:root:加载配置文件...
+INFO:root:配置文件加载成功: config.yaml
+INFO:root:初始化Redis连接...
+INFO:root:使用自定义channel: hedge:account_4_to_account_5
+INFO:root:初始化Redis连接: localhost:6388/0
+INFO:root:Redis连接成功
+INFO:root:初始化A账户...
+DEBUG:root:Detected ARM architecture on macOS.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): mainnet.zklighter.elliot.ai:443
+DEBUG:urllib3.connectionpool:https://mainnet.zklighter.elliot.ai:443 "GET /api/v1/nextNonce?account_index=280459&api_key_index=3 HTTP/1.1" 200 25
+INFO:root:查询市场索引: BTC...
+INFO:root:找到市场 BTC, market_index=1
+INFO:root:清理历史挂单...
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:初始化A账户管理器...
+INFO:root:A账户管理器初始化完成: account=280459, market=1
+INFO:root:启动WebSocket监听A账户订单成交...
+INFO:root:启动WebSocket监听账户: 280459
+INFO:root:WebSocket开始连接...
+INFO:root:WebSocket心跳监控已启动: 间隔=30s, 超时阈值=90s
+INFO:root:WebSocket监听和心跳监控已启动
+DEBUG:websockets.client:= connection is CONNECTING
+DEBUG:websockets.client:> GET /stream HTTP/1.1
+DEBUG:websockets.client:> Host: mainnet.zklighter.elliot.ai
+DEBUG:websockets.client:> Upgrade: websocket
+DEBUG:websockets.client:> Connection: Upgrade
+DEBUG:websockets.client:> Sec-WebSocket-Key: +qzXI0rZ7032yeKYkuk46g==
+DEBUG:websockets.client:> Sec-WebSocket-Version: 13
+DEBUG:websockets.client:> Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+DEBUG:websockets.client:> User-Agent: Python/3.9 websockets/15.0.1
+DEBUG:websockets.client:< HTTP/1.1 101 Switching Protocols
+DEBUG:websockets.client:< Date: Fri, 24 Oct 2025 09:22:31 GMT
+DEBUG:websockets.client:< Connection: upgrade
+DEBUG:websockets.client:< Upgrade: websocket
+DEBUG:websockets.client:< Sec-WebSocket-Accept: LRutQoy1mDq2W1vz2f2ErBNVm/s=
+DEBUG:websockets.client:< Access-Control-Allow-Credentials: true
+DEBUG:websockets.client:< Access-Control-Max-Age: 86400
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Access-Control-Allow-Origin: *
+DEBUG:websockets.client:< Access-Control-Allow-Methods: GET, HEAD, POST, PATCH, PUT, DELETE
+DEBUG:websockets.client:< Access-Control-Allow-Headers: Content-Type, Origin, X-CSRF-Token, Authorization, AccessToken, Token, Range
+DEBUG:websockets.client:< Access-Control-Expose-Headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers
+DEBUG:websockets.client:= connection is OPEN
+DEBUG:websockets.client:< TEXT '{"session_id":"960446bc-2252-4f1a-8d68-76cecc06dc8c","type":"connected"}' [72 bytes]
+DEBUG:websockets.client:> TEXT '{"type": "subscribe", "channel": "account_all/280459"}' [54 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...y_volume":15831.805704}' [1057 bytes]
+INFO:root:初始化完成！
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 1 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297075, "market": "BTC", "available_balance": "25.631906"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111282.1
+INFO:root:创建限价买单: price=111282.1, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1112821,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763716954325,"ExpiredAt":1761298353325,"Nonce":1106,"Sig":"o6Nr0rzbKO8cUs0KMb94t4haUW9UxhvoWhPTzj4sAI67W2FSyKCYJAgY4ZQBB9copHOSo4AJiDp3jdnJ66bm8R7AxkmvC5UK45MQ33+uEjI="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='db37f882a360ecbab871983cd160d8b1aa3f2ddda6104458da1411c624665afa9fec621213efa9ff' predicted_execution_time_ms=1761297754839 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=db37f882a360ecbab871983cd160d8b1aa3f2ddda6104458da1411c624665afa9fec621213efa9ff
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539499239
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 2 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297075, "market": "BTC", "available_balance": "25.631906"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 3 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297075, "market": "BTC", "available_balance": "25.631906"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 4 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297075, "market": "BTC", "available_balance": "25.631906"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 92 84 ae e3 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 92 84 ae e3 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 5 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297075, "market": "BTC", "available_balance": "25.631906"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [799 bytes]
+DEBUG:root:收到1笔交易记录
+INFO:root:✅ 限价单完全成交！order_index=844424539499239
+INFO:root:成交详情: size=0.00020, price=111282.1, usd_amount=22.256420
+INFO:root:准备发送Redis通知: order_index=844424539499239, side=buy, avg_price=111282.1
+INFO:root:发布消息到 hedge:account_4_to_account_5: {"account_index": 280459, "market_index": 1, "order_index": 844424539499239, "filled_base_amount": "0.00020", "filled_quote_amount": "22.256420", "avg_price": "111282.1", "timestamp": 1761297780, "side": "buy"}
+INFO:root:已通过WebSocket发送A账户成交通知到Redis: order_index=844424539499239
+INFO:root:订单844424539499239已从监控列表移除
+DEBUG:root:WebSocket心跳检查: 距上次消息 0.7秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 6 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297782, "market": "BTC", "available_balance": "24.517755"}
+WARNING:root:⚠️ 对冲状态异常: 持仓大小不匹配: A=0.0002, B=0.0
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 7 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297782, "market": "BTC", "available_balance": "24.517071"}
+INFO:root:[第三步] 如果持仓存在且是多头，活跃单不存在，则限价平多...
+INFO:root:市场1 卖60档价格: 111293.3
+INFO:root:创建限价卖单: price=111293.3, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1112933,"IsAsk":1,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763716987857,"ExpiredAt":1761298386857,"Nonce":1107,"Sig":"ct3GQjhxBzkJ4PS2SmWYGcMoHmcEbY/Ga4VN1EOiGlJSLvIWmEX0W7LE6S1Kg/XfVsMU7EFAQ9zPzTm8RxpL7JujUm7efQxvcIEOI+XWq3Y="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='6fcf16d9498453030985b0b9a80c49e71eb5bc0dc9cf8cad1ad56206eafd9cbcea5ebdaaada27ea2' predicted_execution_time_ms=1761297788371 additional_properties={}
+INFO:root:限价卖单创建成功: client_order_index=0, tx_hash=6fcf16d9498453030985b0b9a80c49e71eb5bc0dc9cf8cad1ad56206eafd9cbcea5ebdaaada27ea2
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [493 bytes]
+INFO:root:订单已添加到监控列表: order_index=562950336807823
+DEBUG:websockets.client:> PING 0f b5 13 76 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 0f b5 13 76 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 8 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297782, "market": "BTC", "available_balance": "24.517793"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [797 bytes]
+DEBUG:root:收到1笔交易记录
+INFO:root:✅ 限价单完全成交！order_index=562950336807823
+INFO:root:成交详情: size=0.00020, price=111293.3, usd_amount=22.258660
+INFO:root:准备发送Redis通知: order_index=562950336807823, side=sell, avg_price=111293.3
+INFO:root:发布消息到 hedge:account_4_to_account_5: {"account_index": 280459, "market_index": 1, "order_index": 562950336807823, "filled_base_amount": "0.00020", "filled_quote_amount": "22.258660", "avg_price": "111293.3", "timestamp": 1761297799, "side": "sell"}
+INFO:root:已通过WebSocket发送A账户成交通知到Redis: order_index=562950336807823
+INFO:root:订单562950336807823已从监控列表移除
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 9 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+WARNING:root:⚠️ 对冲状态异常: 持仓大小不匹配: A=0.0, B=0.0002
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 10 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111271.8
+INFO:root:创建限价买单: price=111271.8, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1112718,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717005441,"ExpiredAt":1761298404441,"Nonce":1108,"Sig":"o5fEKUHFoA8OzYw3aoCEsQ849yERzL+Hydpjf6PMwr0C1IZlT6+HaTJVUn8s4VX0evaRrdHP3Fbcb1ZDx7Wi+8oK+vsLy+oJOvStFnEb2mU="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='50a6dd1ea300e6708d9e415544a5cd73d31ac97fdf44cb0f10917731717037f513e7166e785998f6' predicted_execution_time_ms=1761297805953 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=50a6dd1ea300e6708d9e415544a5cd73d31ac97fdf44cb0f10917731717037f513e7166e785998f6
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539493200
+DEBUG:root:WebSocket心跳检查: 距上次消息 5.5秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 11 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+DEBUG:websockets.client:< TEXT '{"type":"ping"}' [15 bytes]
+ERROR:root:WebSocket运行异常: Unhandled message: {'type': 'ping'}（连续失败1次），2秒后重试...
+DEBUG:websockets.client:> PING 84 e2 89 b5 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+INFO:root:第二步 查询持仓情况
+DEBUG:websockets.client:< PONG 84 e2 89 b5 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:WebSocket连接已恢复，重置失败计数
+INFO:root:WebSocket开始连接...
+DEBUG:websockets.client:= connection is CONNECTING
+DEBUG:websockets.client:> GET /stream HTTP/1.1
+DEBUG:websockets.client:> Host: mainnet.zklighter.elliot.ai
+DEBUG:websockets.client:> Upgrade: websocket
+DEBUG:websockets.client:> Connection: Upgrade
+DEBUG:websockets.client:> Sec-WebSocket-Key: 6p6H2/XHVKLGPiLg7fLCxQ==
+DEBUG:websockets.client:> Sec-WebSocket-Version: 13
+DEBUG:websockets.client:> Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+DEBUG:websockets.client:> User-Agent: Python/3.9 websockets/15.0.1
+DEBUG:websockets.client:< HTTP/1.1 101 Switching Protocols
+DEBUG:websockets.client:< Date: Fri, 24 Oct 2025 09:23:34 GMT
+DEBUG:websockets.client:< Connection: upgrade
+DEBUG:websockets.client:< Upgrade: websocket
+DEBUG:websockets.client:< Sec-WebSocket-Accept: IROUB7c60SgMJhJGO0BEnhiO5qw=
+DEBUG:websockets.client:< Access-Control-Allow-Credentials: true
+DEBUG:websockets.client:< Access-Control-Max-Age: 86400
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Access-Control-Allow-Origin: *
+DEBUG:websockets.client:< Access-Control-Allow-Methods: GET, HEAD, POST, PATCH, PUT, DELETE
+DEBUG:websockets.client:< Access-Control-Allow-Headers: Content-Type, Origin, X-CSRF-Token, Authorization, AccessToken, Token, Range
+DEBUG:websockets.client:< Access-Control-Expose-Headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers
+DEBUG:websockets.client:= connection is OPEN
+DEBUG:websockets.client:< TEXT '{"session_id":"2db643ac-f28f-4da9-b0ae-6c6435549967","type":"connected"}' [72 bytes]
+DEBUG:websockets.client:> TEXT '{"type": "subscribe", "channel": "account_all/280459"}' [54 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...y_volume":15876.320784}' [1057 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 12 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 13 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 14 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+null
+[{"order_index": 844424539499239, "client_order_index": 0, "order_id": "844424539499239", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111282.1", "nonce": 281474586077927, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112821, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763716954325, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091342, "timestamp": 1761297754, "additional_properties": {"created_at": 1761297754, "updated_at": 1761297754}}]
+[{"order_index": 844424539499239, "client_order_index": 0, "order_id": "844424539499239", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111282.1", "nonce": 281474586077927, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112821, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763716954325, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091342, "timestamp": 1761297754, "additional_properties": {"created_at": 1761297754, "updated_at": 1761297754}}]
+[{"order_index": 844424539499239, "client_order_index": 0, "order_id": "844424539499239", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111282.1", "nonce": 281474586077927, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112821, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763716954325, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091342, "timestamp": 1761297754, "additional_properties": {"created_at": 1761297754, "updated_at": 1761297754}}]
+[{"order_index": 844424539499239, "client_order_index": 0, "order_id": "844424539499239", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111282.1", "nonce": 281474586077927, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112821, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763716954325, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091342, "timestamp": 1761297754, "additional_properties": {"created_at": 1761297754, "updated_at": 1761297754}}]
+null
+null
+[{"order_index": 562950336807823, "client_order_index": 0, "order_id": "562950336807823", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111293.3", "nonce": 383386511, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1112933, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763716987857, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091623, "timestamp": 1761297788, "additional_properties": {"created_at": 1761297788, "updated_at": 1761297788}}]
+[{"order_index": 562950336807823, "client_order_index": 0, "order_id": "562950336807823", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111293.3", "nonce": 383386511, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1112933, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763716987857, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091623, "timestamp": 1761297788, "additional_properties": {"created_at": 1761297788, "updated_at": 1761297788}}]
+null
+[{"order_index": 844424539493200, "client_order_index": 0, "order_id": "844424539493200", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111271.8", "nonce": 281474586071888, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112718, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717005441, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091748, "timestamp": 1761297805, "additional_properties": {"created_at": 1761297805, "updated_at": 1761297805}}]
+[{"order_index": 844424539493200, "client_order_index": 0, "order_id": "844424539493200", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111271.8", "nonce": 281474586071888, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112718, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717005441, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091748, "timestamp": 1761297805, "additional_properties": {"created_at": 1761297805, "updated_at": 1761297805}}]
+[{"order_index": 844424539493200, "client_order_index": 0, "order_id": "844424539493200", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111271.8", "nonce": 281474586071888, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112718, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717005441, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091748, "timestamp": 1761297805, "additional_properties": {"created_at": 1761297805, "updated_at": 1761297805}}]
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING b1 b3 23 02 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG b1 b3 23 02 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 15 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 05 bc 71 b0 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 05 bc 71 b0 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 16 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+DEBUG:root:Cancel Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"Index":844424539493200,"ExpiredAt":1761298437834,"Nonce":1109,"Sig":"8ZvNkuLiRltwP8UHPrydPHKIO1B0fU/cPfO86frk9V9giwHBB1xRSWv2eri3VvE0hfxq08UL8uNrlg7GzbNUkyibcWsfPDdSJRfTMjzHwxA="}
+DEBUG:root:Cancel Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='36c721096debfbc96f096675db0578bdaa0cbb5074e68ef5d1d25009c4f8dec74096fa709d98696a' predicted_execution_time_ms=1761297839149 additional_properties={}
+INFO:root:已取消订单: 844424539493200
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:root:WebSocket心跳检查: 距上次消息 2.4秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 17 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111288.0
+INFO:root:创建限价买单: price=111288.0, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1112880,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717044549,"ExpiredAt":1761298443549,"Nonce":1110,"Sig":"gZfTAsaPHwrD4EpO0HjSA8gZ4os6BxojSfKiAhoyfh6v59v3JpeuVRlygnhJUGQr+3EfZ+NFfBctI5nqZv0oKKGDluoZ24VSxhD/J7egGWY="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='39188d159345ae5ef719c844086111391dd6f5084d03653cf18ff6a5aebd4853931928120caf6741' predicted_execution_time_ms=1761297845072 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=39188d159345ae5ef719c844086111391dd6f5084d03653cf18ff6a5aebd4853931928120caf6741
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539488881
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 18 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 4f a8 14 0a [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 4f a8 14 0a [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:websockets.client:> PING ae fe 01 89 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG ae fe 01 89 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 19 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 20 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 21 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+DEBUG:root:WebSocket心跳检查: 距上次消息 26.4秒
+DEBUG:websockets.client:< CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:> CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:= connection is CLOSING
+DEBUG:websockets.client:< EOF
+DEBUG:websockets.client:> EOF
+DEBUG:websockets.client:= connection is CLOSED
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 22 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< TEXT '{"type":"ping"}' [15 bytes]
+ERROR:root:WebSocket运行异常: Unhandled message: {'type': 'ping'}（连续失败1次），2秒后重试...
+DEBUG:websockets.client:> PING 86 b1 af 34 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 86 b1 af 34 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:WebSocket连接已恢复，重置失败计数
+INFO:root:WebSocket开始连接...
+DEBUG:websockets.client:= connection is CONNECTING
+DEBUG:websockets.client:> GET /stream HTTP/1.1
+DEBUG:websockets.client:> Host: mainnet.zklighter.elliot.ai
+DEBUG:websockets.client:> Upgrade: websocket
+DEBUG:websockets.client:> Connection: Upgrade
+DEBUG:websockets.client:> Sec-WebSocket-Key: nM/3Z7AdJB1NTnDIupJKSg==
+DEBUG:websockets.client:> Sec-WebSocket-Version: 13
+DEBUG:websockets.client:> Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+DEBUG:websockets.client:> User-Agent: Python/3.9 websockets/15.0.1
+DEBUG:websockets.client:< HTTP/1.1 101 Switching Protocols
+DEBUG:websockets.client:< Date: Fri, 24 Oct 2025 09:24:36 GMT
+DEBUG:websockets.client:< Connection: upgrade
+DEBUG:websockets.client:< Upgrade: websocket
+DEBUG:websockets.client:< Sec-WebSocket-Accept: tamKLssUGRPeMr1VUoqsu+DviGI=
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Access-Control-Allow-Origin: *
+DEBUG:websockets.client:< Access-Control-Allow-Methods: GET, HEAD, POST, PATCH, PUT, DELETE
+DEBUG:websockets.client:< Access-Control-Allow-Headers: Content-Type, Origin, X-CSRF-Token, Authorization, AccessToken, Token, Range
+DEBUG:websockets.client:< Access-Control-Expose-Headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers
+DEBUG:websockets.client:< Access-Control-Allow-Credentials: true
+DEBUG:websockets.client:< Access-Control-Max-Age: 86400
+DEBUG:websockets.client:= connection is OPEN
+DEBUG:websockets.client:< TEXT '{"session_id":"d5692b7c-440b-4576-9cb5-36179139fc2d","type":"connected"}' [72 bytes]
+DEBUG:websockets.client:> TEXT '{"type": "subscribe", "channel": "account_all/280459"}' [54 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...y_volume":15876.320784}' [1057 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 23 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+DEBUG:root:Cancel Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"Index":844424539488881,"ExpiredAt":1761298476674,"Nonce":1111,"Sig":"PYvjW8Y/QMdJLn3UiI1ZswdoiP1+E8hscm6KPHGbU/pLH2mxzOq8Ks73ByOm+ulyRhlP3O/WI2W69bR9ASUjoTqyClk15jm5E9iEn5/WFGQ="}
+DEBUG:root:Cancel Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='49a45634f205f64a3d53b9c323b036e1460d43a3de550948faab4fc2eb97c467717bcfea86b65687' predicted_execution_time_ms=1761297877995 additional_properties={}
+INFO:root:已取消订单: 844424539488881
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 24 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297799, "market": "BTC", "available_balance": "25.634146"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111309.5
+INFO:root:创建限价买单: price=111309.5, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113095,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717083389,"ExpiredAt":1761298482389,"Nonce":1112,"Sig":"0AcKtaukqs1uQe8oIAuVf76SoPmghOpFvsYDz+2RoYvHxty60LbBcJYcLs1zxfyZ1mM6LAeKd9LhIRVperTfmGuvU4JkXg8aD69l4LD4T3s="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='9c28a0f69b0dca3b4d3773079e5e060bfa29117f9b7383a596f4734f5966c6eef899efb813fcbdf4' predicted_execution_time_ms=1761297883908 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=9c28a0f69b0dca3b4d3773079e5e060bfa29117f9b7383a596f4734f5966c6eef899efb813fcbdf4
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539485022
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [797 bytes]
+DEBUG:root:收到1笔交易记录
+INFO:root:✅ 限价单完全成交！order_index=844424539485022
+INFO:root:成交详情: size=0.00020, price=111309.5, usd_amount=22.261900
+INFO:root:准备发送Redis通知: order_index=844424539485022, side=buy, avg_price=111309.5
+INFO:root:发布消息到 hedge:account_4_to_account_5: {"account_index": 280459, "market_index": 1, "order_index": 844424539485022, "filled_base_amount": "0.00020", "filled_quote_amount": "22.261900", "avg_price": "111309.5", "timestamp": 1761297888, "side": "buy"}
+INFO:root:已通过WebSocket发送A账户成交通知到Redis: order_index=844424539485022
+INFO:root:订单844424539485022已从监控列表移除
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [797 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 25 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297889, "market": "BTC", "available_balance": "24.519303"}
+INFO:root:[第三步] 如果持仓存在且是多头，活跃单不存在，则限价平多...
+INFO:root:市场1 卖60档价格: 111322.3
+INFO:root:创建限价卖单: price=111322.3, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113223,"IsAsk":1,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717090280,"ExpiredAt":1761298489280,"Nonce":1113,"Sig":"06bR9X4u1NozxKxHVNxl3zGBjXKQ5D2gofgy/AXDNpIT6BYwVfL9INYule1NCjHP1MGZUBPzUfXoIFOY/JbcQ+mu1NmU6W1E8pzkEA2AX2k="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='bb78ddae05977c2bf3c14bf0fda1dc4fc10b79353691c5cd30e8fa5400635d837e36b6fbbabf0513' predicted_execution_time_ms=1761297890792 additional_properties={}
+INFO:root:限价卖单创建成功: client_order_index=0, tx_hash=bb78ddae05977c2bf3c14bf0fda1dc4fc10b79353691c5cd30e8fa5400635d837e36b6fbbabf0513
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [493 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [493 bytes]
+INFO:root:订单已添加到监控列表: order_index=562950336817688
+DEBUG:websockets.client:> PING 8b 55 dd 16 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 8b 55 dd 16 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 26 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+[{"order_index": 844424539493200, "client_order_index": 0, "order_id": "844424539493200", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111271.8", "nonce": 281474586071888, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112718, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717005441, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091748, "timestamp": 1761297805, "additional_properties": {"created_at": 1761297805, "updated_at": 1761297805}}]
+[{"order_index": 844424539493200, "client_order_index": 0, "order_id": "844424539493200", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111271.8", "nonce": 281474586071888, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112718, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717005441, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091748, "timestamp": 1761297805, "additional_properties": {"created_at": 1761297805, "updated_at": 1761297805}}]
+[{"order_index": 844424539493200, "client_order_index": 0, "order_id": "844424539493200", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111271.8", "nonce": 281474586071888, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112718, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717005441, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72091748, "timestamp": 1761297805, "additional_properties": {"created_at": 1761297805, "updated_at": 1761297805}}]
+null
+[{"order_index": 844424539488881, "client_order_index": 0, "order_id": "844424539488881", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111288.0", "nonce": 281474586067569, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112880, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717044549, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092067, "timestamp": 1761297844, "additional_properties": {"created_at": 1761297844, "updated_at": 1761297844}}]
+[{"order_index": 844424539488881, "client_order_index": 0, "order_id": "844424539488881", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111288.0", "nonce": 281474586067569, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112880, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717044549, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092067, "timestamp": 1761297844, "additional_properties": {"created_at": 1761297844, "updated_at": 1761297844}}]
+[{"order_index": 844424539488881, "client_order_index": 0, "order_id": "844424539488881", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111288.0", "nonce": 281474586067569, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112880, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717044549, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092067, "timestamp": 1761297844, "additional_properties": {"created_at": 1761297844, "updated_at": 1761297844}}]
+[{"order_index": 844424539488881, "client_order_index": 0, "order_id": "844424539488881", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111288.0", "nonce": 281474586067569, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112880, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717044549, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092067, "timestamp": 1761297844, "additional_properties": {"created_at": 1761297844, "updated_at": 1761297844}}]
+[{"order_index": 844424539488881, "client_order_index": 0, "order_id": "844424539488881", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111288.0", "nonce": 281474586067569, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112880, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717044549, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092067, "timestamp": 1761297844, "additional_properties": {"created_at": 1761297844, "updated_at": 1761297844}}]
+[{"order_index": 844424539488881, "client_order_index": 0, "order_id": "844424539488881", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111288.0", "nonce": 281474586067569, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1112880, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717044549, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092067, "timestamp": 1761297844, "additional_properties": {"created_at": 1761297844, "updated_at": 1761297844}}]
+null
+null
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297889, "market": "BTC", "available_balance": "24.519417"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 8a ac d2 d8 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 8a ac d2 d8 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:root:WebSocket心跳检查: 距上次消息 10.7秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 27 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297889, "market": "BTC", "available_balance": "24.520025"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 28 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297889, "market": "BTC", "available_balance": "24.520405"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 29 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297889, "market": "BTC", "available_balance": "24.519892"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 2f a9 2c 79 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 2f a9 2c 79 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:websockets.client:> PING c2 6c b0 57 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG c2 6c b0 57 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 30 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297889, "market": "BTC", "available_balance": "24.518201"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 31 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297889, "market": "BTC", "available_balance": "24.519455"}
+DEBUG:root:Cancel Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"Index":562950336817688,"ExpiredAt":1761298522583,"Nonce":1114,"Sig":"1nf5AyHcuMRP/PkF+yRPbz3QVjlQqNxWD0xBIHi3yOeRmlazSUVcLP3J95l1tLvJ6Q5gkyYXQGv9hdr4opueTBFbqWLhloAH1vRFDi9v+VI="}
+DEBUG:root:Cancel Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='1f99d4588e33804ed43335606e54f99a2c2691d6f0c414898cca03261c5e5079c5140e619e8f0d68' predicted_execution_time_ms=1761297923898 additional_properties={}
+INFO:root:已取消订单: 562950336817688
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [493 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [493 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 32 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297889, "market": "BTC", "available_balance": "24.520842"}
+INFO:root:[第三步] 如果持仓存在且是多头，活跃单不存在，则限价平多...
+INFO:root:市场1 卖60档价格: 111323.6
+INFO:root:创建限价卖单: price=111323.6, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113236,"IsAsk":1,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717129307,"ExpiredAt":1761298528307,"Nonce":1115,"Sig":"zAFYepIqukfBxhTE/FFGNpJtT7I6SficrvCYq3/7lb+zKiULWXpidJDPOC8PKpYvFcuCVSqHqgBUJu2OAVz3d0NyDXzHb7mbkkCDFFJm3zs="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='cfabdc97f91772435a9e0522374b6260cf685a85070b94bedb28e879614cbf730da3aabcef502279' predicted_execution_time_ms=1761297929824 additional_properties={}
+INFO:root:限价卖单创建成功: client_order_index=0, tx_hash=cfabdc97f91772435a9e0522374b6260cf685a85070b94bedb28e879614cbf730da3aabcef502279
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [493 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [493 bytes]
+INFO:root:订单已添加到监控列表: order_index=562950336821806
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+DEBUG:root:WebSocket心跳检查: 距上次消息 1.7秒
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [800 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [800 bytes]
+DEBUG:root:收到1笔交易记录
+INFO:root:✅ 限价单完全成交！order_index=562950336821806
+INFO:root:成交详情: size=0.00020, price=111323.6, usd_amount=22.264720
+INFO:root:准备发送Redis通知: order_index=562950336821806, side=sell, avg_price=111323.6
+INFO:root:发布消息到 hedge:account_4_to_account_5: {"account_index": 280459, "market_index": 1, "order_index": 562950336821806, "filled_base_amount": "0.00020", "filled_quote_amount": "22.264720", "avg_price": "111323.6", "timestamp": 1761297932, "side": "sell"}
+INFO:root:已通过WebSocket发送A账户成交通知到Redis: order_index=562950336821806
+INFO:root:订单562950336821806已从监控列表移除
+DEBUG:websockets.client:< CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:> CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:= connection is CLOSING
+DEBUG:websockets.client:< EOF
+DEBUG:websockets.client:> EOF
+DEBUG:websockets.client:= connection is CLOSED
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 33 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297935, "market": "BTC", "available_balance": "25.636966"}
+WARNING:root:⚠️ 对冲状态异常: 持仓大小不匹配: A=0.0, B=0.0002
+DEBUG:websockets.client:< TEXT '{"type":"ping"}' [15 bytes]
+ERROR:root:WebSocket运行异常: Unhandled message: {'type': 'ping'}（连续失败1次），2秒后重试...
+DEBUG:websockets.client:> PING 81 75 6b 8b [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 81 75 6b 8b [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:WebSocket连接已恢复，重置失败计数
+INFO:root:WebSocket开始连接...
+DEBUG:websockets.client:= connection is CONNECTING
+DEBUG:websockets.client:> GET /stream HTTP/1.1
+DEBUG:websockets.client:> Host: mainnet.zklighter.elliot.ai
+DEBUG:websockets.client:> Upgrade: websocket
+DEBUG:websockets.client:> Connection: Upgrade
+DEBUG:websockets.client:> Sec-WebSocket-Key: gvkXISIqkxOE5iGHfaGtYg==
+DEBUG:websockets.client:> Sec-WebSocket-Version: 13
+DEBUG:websockets.client:> Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+DEBUG:websockets.client:> User-Agent: Python/3.9 websockets/15.0.1
+DEBUG:websockets.client:< HTTP/1.1 101 Switching Protocols
+DEBUG:websockets.client:< Date: Fri, 24 Oct 2025 09:25:39 GMT
+DEBUG:websockets.client:< Connection: upgrade
+DEBUG:websockets.client:< Upgrade: websocket
+DEBUG:websockets.client:< Sec-WebSocket-Accept: ZbuYOfkIaOtfmKpGfNjc2v1MXaE=
+DEBUG:websockets.client:< Access-Control-Allow-Methods: GET, HEAD, POST, PATCH, PUT, DELETE
+DEBUG:websockets.client:< Access-Control-Allow-Headers: Content-Type, Origin, X-CSRF-Token, Authorization, AccessToken, Token, Range
+DEBUG:websockets.client:< Access-Control-Expose-Headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers
+DEBUG:websockets.client:< Access-Control-Allow-Credentials: true
+DEBUG:websockets.client:< Access-Control-Max-Age: 86400
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Access-Control-Allow-Origin: *
+DEBUG:websockets.client:= connection is OPEN
+DEBUG:websockets.client:< TEXT '{"session_id":"63bb7a19-2713-4810-b6f8-c945969317ec","type":"connected"}' [72 bytes]
+DEBUG:websockets.client:> TEXT '{"type": "subscribe", "channel": "account_all/280459"}' [54 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...y_volume":15920.847404}' [1057 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 34 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297935, "market": "BTC", "available_balance": "25.636966"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111326.4
+INFO:root:创建限价买单: price=111326.4, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113264,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717141422,"ExpiredAt":1761298540422,"Nonce":1116,"Sig":"6QBGTdwvtPJc+nDEhAQuKbpvBFW51fJnnsdkoZMSf28uXh/qZa40MycZVQ2+e3UffXGm8u+p0iW1TApr0eP5XwlkCsk+ODFqT/2bTyNPVgs="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='2fa9cdd90531bc66c98c96ad0a2f02322d00204db0857f49764f6d2444d2934170f2067e8cba0dc5' predicted_execution_time_ms=1761297941938 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=2fa9cdd90531bc66c98c96ad0a2f02322d00204db0857f49764f6d2444d2934170f2067e8cba0dc5
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539478090
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 35 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297935, "market": "BTC", "available_balance": "25.636966"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 36 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297935, "market": "BTC", "available_balance": "25.636966"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 35 ef ea 06 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 35 ef ea 06 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 37 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297935, "market": "BTC", "available_balance": "25.636966"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING b0 01 c4 1e [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG b0 01 c4 1e [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:root:WebSocket心跳检查: 距上次消息 19.3秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 38 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+[{"order_index": 562950336817688, "client_order_index": 0, "order_id": "562950336817688", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111322.3", "nonce": 383396376, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113223, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717090280, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092465, "timestamp": 1761297890, "additional_properties": {"created_at": 1761297890, "updated_at": 1761297890}}]
+[{"order_index": 562950336817688, "client_order_index": 0, "order_id": "562950336817688", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111322.3", "nonce": 383396376, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113223, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717090280, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092465, "timestamp": 1761297890, "additional_properties": {"created_at": 1761297890, "updated_at": 1761297890}}]
+[{"order_index": 562950336817688, "client_order_index": 0, "order_id": "562950336817688", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111322.3", "nonce": 383396376, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113223, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717090280, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092465, "timestamp": 1761297890, "additional_properties": {"created_at": 1761297890, "updated_at": 1761297890}}]
+[{"order_index": 562950336817688, "client_order_index": 0, "order_id": "562950336817688", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111322.3", "nonce": 383396376, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113223, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717090280, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092465, "timestamp": 1761297890, "additional_properties": {"created_at": 1761297890, "updated_at": 1761297890}}]
+[{"order_index": 562950336817688, "client_order_index": 0, "order_id": "562950336817688", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111322.3", "nonce": 383396376, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113223, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717090280, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092465, "timestamp": 1761297890, "additional_properties": {"created_at": 1761297890, "updated_at": 1761297890}}]
+[{"order_index": 562950336817688, "client_order_index": 0, "order_id": "562950336817688", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111322.3", "nonce": 383396376, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113223, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717090280, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092465, "timestamp": 1761297890, "additional_properties": {"created_at": 1761297890, "updated_at": 1761297890}}]
+null
+null
+null
+[{"order_index": 844424539478090, "client_order_index": 0, "order_id": "844424539478090", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111326.4", "nonce": 281474586056778, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113264, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717141422, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092946, "timestamp": 1761297941, "additional_properties": {"created_at": 1761297941, "updated_at": 1761297941}}]
+[{"order_index": 844424539478090, "client_order_index": 0, "order_id": "844424539478090", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111326.4", "nonce": 281474586056778, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113264, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717141422, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092946, "timestamp": 1761297941, "additional_properties": {"created_at": 1761297941, "updated_at": 1761297941}}]
+[{"order_index": 844424539478090, "client_order_index": 0, "order_id": "844424539478090", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111326.4", "nonce": 281474586056778, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113264, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717141422, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092946, "timestamp": 1761297941, "additional_properties": {"created_at": 1761297941, "updated_at": 1761297941}}]
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297935, "market": "BTC", "available_balance": "25.636966"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 39 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297935, "market": "BTC", "available_balance": "25.636966"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 40 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297935, "market": "BTC", "available_balance": "25.636966"}
+DEBUG:root:Cancel Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"Index":844424539478090,"ExpiredAt":1761298573650,"Nonce":1117,"Sig":"eHOVWSosqbA+fOsyCSWn9HphSjb3GymIQ2QI78mkJ5ppwkkBEwYBNrBL+5m+oVPXi334NwXcoK45o1HNcRIV2gLyfTWH0qZza/xlhYKq5kE="}
+DEBUG:root:Cancel Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='72ed559684dba7f2a46271954a118c79f6ffe64d6efd17675c3aa03a7cd289f478c8bfb9fdea95cc' predicted_execution_time_ms=1761297974969 additional_properties={}
+INFO:root:已取消订单: 844424539478090
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:> PING 1d 39 4b dc [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 1d 39 4b dc [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:websockets.client:> PING a5 b7 b9 c9 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG a5 b7 b9 c9 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 41 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297935, "market": "BTC", "available_balance": "25.636966"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111353.6
+INFO:root:创建限价买单: price=111353.6, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113536,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717180307,"ExpiredAt":1761298579307,"Nonce":1118,"Sig":"zRbJj93ld/9YBpCtqrafIHNHfVb7upIxyDIJgEIHwKdRy1TsxynBBhHEeoksd/7u1fXhgDkTCsdviNdNkJScA1lVmqK90ihmK2CqQqKzEFY="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='2869338b1f45a492a9c27454aae0a267927c7e904c2eaa875a6a3c27e8297d5d95da74ba9cf3a27e' predicted_execution_time_ms=1761297980824 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=2869338b1f45a492a9c27454aae0a267927c7e904c2eaa875a6a3c27e8297d5d95da74ba9cf3a27e
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539472793
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [796 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [796 bytes]
+DEBUG:root:收到1笔交易记录
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+INFO:root:✅ 限价单完全成交！order_index=844424539472793
+INFO:root:成交详情: size=0.00020, price=111353.6, usd_amount=22.270720
+INFO:root:准备发送Redis通知: order_index=844424539472793, side=buy, avg_price=111353.6
+INFO:root:发布消息到 hedge:account_4_to_account_5: {"account_index": 280459, "market_index": 1, "order_index": 844424539472793, "filled_base_amount": "0.00020", "filled_quote_amount": "22.270720", "avg_price": "111353.6", "timestamp": 1761297982, "side": "buy"}
+INFO:root:已通过WebSocket发送A账户成交通知到Redis: order_index=844424539472793
+INFO:root:订单844424539472793已从监控列表移除
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 42 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297986, "market": "BTC", "available_balance": "24.522822"}
+INFO:root:[第三步] 如果持仓存在且是多头，活跃单不存在，则限价平多...
+INFO:root:市场1 卖60档价格: 111367.5
+INFO:root:创建限价卖单: price=111367.5, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113675,"IsAsk":1,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717187091,"ExpiredAt":1761298586091,"Nonce":1119,"Sig":"3w+QsmzoRlL4cpKPw7AxY4C5y5Qao909P0Kw5KCmlZQMGeGz1NAXCIAjSUWmgy8R9F/+jP7t9ZFc6RESvTVyONzqPkupbMRaMaT91rc67Bw="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='d6a4b3b24a09f7bb54df25df1d5e1636f8afc11c7973cca55712bfda27d84c0d7c95101a727616b1' predicted_execution_time_ms=1761297987608 additional_properties={}
+INFO:root:限价卖单创建成功: client_order_index=0, tx_hash=d6a4b3b24a09f7bb54df25df1d5e1636f8afc11c7973cca55712bfda27d84c0d7c95101a727616b1
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [493 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [493 bytes]
+INFO:root:订单已添加到监控列表: order_index=562950336828414
+DEBUG:root:WebSocket心跳检查: 距上次消息 3.9秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 43 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297986, "market": "BTC", "available_balance": "24.520371"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:> CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:= connection is CLOSING
+DEBUG:websockets.client:< EOF
+DEBUG:websockets.client:> EOF
+DEBUG:websockets.client:= connection is CLOSED
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 44 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297986, "market": "BTC", "available_balance": "24.519744"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< TEXT '{"type":"ping"}' [15 bytes]
+ERROR:root:WebSocket运行异常: Unhandled message: {'type': 'ping'}（连续失败1次），2秒后重试...
+DEBUG:websockets.client:> PING 5e 9c bc a3 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 5e 9c bc a3 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:WebSocket连接已恢复，重置失败计数
+INFO:root:WebSocket开始连接...
+DEBUG:websockets.client:= connection is CONNECTING
+DEBUG:websockets.client:> GET /stream HTTP/1.1
+DEBUG:websockets.client:> Host: mainnet.zklighter.elliot.ai
+DEBUG:websockets.client:> Upgrade: websocket
+DEBUG:websockets.client:> Connection: Upgrade
+DEBUG:websockets.client:> Sec-WebSocket-Key: K/dluGH17Cc2t4dhQHhdsg==
+DEBUG:websockets.client:> Sec-WebSocket-Version: 13
+DEBUG:websockets.client:> Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+DEBUG:websockets.client:> User-Agent: Python/3.9 websockets/15.0.1
+DEBUG:websockets.client:< HTTP/1.1 101 Switching Protocols
+DEBUG:websockets.client:< Date: Fri, 24 Oct 2025 09:26:42 GMT
+DEBUG:websockets.client:< Connection: upgrade
+DEBUG:websockets.client:< Upgrade: websocket
+DEBUG:websockets.client:< Sec-WebSocket-Accept: UASIs0wIGddm+3/hZr3klH0/dkk=
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Access-Control-Allow-Origin: *
+DEBUG:websockets.client:< Access-Control-Allow-Methods: GET, HEAD, POST, PATCH, PUT, DELETE
+DEBUG:websockets.client:< Access-Control-Allow-Headers: Content-Type, Origin, X-CSRF-Token, Authorization, AccessToken, Token, Range
+DEBUG:websockets.client:< Access-Control-Expose-Headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers
+DEBUG:websockets.client:< Access-Control-Allow-Credentials: true
+DEBUG:websockets.client:< Access-Control-Max-Age: 86400
+DEBUG:websockets.client:= connection is OPEN
+DEBUG:websockets.client:< TEXT '{"session_id":"60701a57-f4d4-4b3b-8d63-174768b544cc","type":"connected"}' [72 bytes]
+DEBUG:websockets.client:> TEXT '{"type": "subscribe", "channel": "account_all/280459"}' [54 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...y_volume":15943.118124}' [1062 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 45 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297986, "market": "BTC", "available_balance": "24.519535"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 46 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761297986, "market": "BTC", "available_balance": "24.520979"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 47 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [798 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [798 bytes]
+DEBUG:root:收到1笔交易记录
+INFO:root:✅ 限价单完全成交！order_index=562950336828414
+INFO:root:成交详情: size=0.00020, price=111367.5, usd_amount=22.273500
+INFO:root:准备发送Redis通知: order_index=562950336828414, side=sell, avg_price=111367.5
+INFO:root:发布消息到 hedge:account_4_to_account_5: {"account_index": 280459, "market_index": 1, "order_index": 562950336828414, "filled_base_amount": "0.00020", "filled_quote_amount": "22.273500", "avg_price": "111367.5", "timestamp": 1761298014, "side": "sell"}
+INFO:root:已通过WebSocket发送A账户成交通知到Redis: order_index=562950336828414
+INFO:root:订单562950336828414已从监控列表移除
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+WARNING:root:⚠️ 对冲状态异常: 持仓大小不匹配: A=0.0, B=0.0002
+DEBUG:websockets.client:> PING 93 fd e6 7d [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 93 fd e6 7d [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 48 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111352.8
+INFO:root:创建限价买单: price=111352.8, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113528,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717220317,"ExpiredAt":1761298619317,"Nonce":1120,"Sig":"KE0HE84HbyaIz5ayeSljOla7oyEh5coGNHXllBt8KDih/jLdZRSNSeGz1BZxufDWUnWjAjA64mIBVEfyyERbyq/b+F5/hxUCLnwFW4emnHg="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='e914e5043a46365a4a63c07840af41416b024b888bd5684ee0dcc96b1005cbbf2238ce54d1b2e93d' predicted_execution_time_ms=1761298020847 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=e914e5043a46365a4a63c07840af41416b024b888bd5684ee0dcc96b1005cbbf2238ce54d1b2e93d
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:root:WebSocket心跳检查: 距上次消息 0.7秒
+INFO:root:订单已添加到监控列表: order_index=844424539468229
+DEBUG:websockets.client:> PING b9 29 c4 11 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG b9 29 c4 11 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 49 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 50 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 51 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+[{"order_index": 844424539478090, "client_order_index": 0, "order_id": "844424539478090", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111326.4", "nonce": 281474586056778, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113264, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717141422, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092946, "timestamp": 1761297941, "additional_properties": {"created_at": 1761297941, "updated_at": 1761297941}}]
+[{"order_index": 844424539478090, "client_order_index": 0, "order_id": "844424539478090", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111326.4", "nonce": 281474586056778, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113264, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717141422, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092946, "timestamp": 1761297941, "additional_properties": {"created_at": 1761297941, "updated_at": 1761297941}}]
+[{"order_index": 844424539478090, "client_order_index": 0, "order_id": "844424539478090", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111326.4", "nonce": 281474586056778, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113264, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717141422, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72092946, "timestamp": 1761297941, "additional_properties": {"created_at": 1761297941, "updated_at": 1761297941}}]
+null
+null
+[{"order_index": 562950336828414, "client_order_index": 0, "order_id": "562950336828414", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111367.5", "nonce": 383407102, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113675, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717187091, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093415, "timestamp": 1761297987, "additional_properties": {"created_at": 1761297987, "updated_at": 1761297987}}]
+[{"order_index": 562950336828414, "client_order_index": 0, "order_id": "562950336828414", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111367.5", "nonce": 383407102, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113675, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717187091, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093415, "timestamp": 1761297987, "additional_properties": {"created_at": 1761297987, "updated_at": 1761297987}}]
+[{"order_index": 562950336828414, "client_order_index": 0, "order_id": "562950336828414", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111367.5", "nonce": 383407102, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113675, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717187091, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093415, "timestamp": 1761297987, "additional_properties": {"created_at": 1761297987, "updated_at": 1761297987}}]
+[{"order_index": 562950336828414, "client_order_index": 0, "order_id": "562950336828414", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111367.5", "nonce": 383407102, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1113675, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717187091, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093415, "timestamp": 1761297987, "additional_properties": {"created_at": 1761297987, "updated_at": 1761297987}}]
+null
+null
+[{"order_index": 844424539468229, "client_order_index": 0, "order_id": "844424539468229", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111352.8", "nonce": 281474586046917, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113528, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717220317, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093712, "timestamp": 1761298020, "additional_properties": {"created_at": 1761298020, "updated_at": 1761298020}}]
+[{"order_index": 844424539468229, "client_order_index": 0, "order_id": "844424539468229", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111352.8", "nonce": 281474586046917, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113528, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717220317, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093712, "timestamp": 1761298020, "additional_properties": {"created_at": 1761298020, "updated_at": 1761298020}}]
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 48 fb ed 3f [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 48 fb ed 3f [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:websockets.client:> PING 56 49 8a 46 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 56 49 8a 46 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 52 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 53 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:root:WebSocket心跳检查: 距上次消息 30.7秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 54 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+DEBUG:root:Cancel Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"Index":844424539468229,"ExpiredAt":1761298652380,"Nonce":1121,"Sig":"zPmsz9nrOrcT9MqzpIy1wVb6gnbvJEDotWkKYCPvf29qNZNs+ZkwYGi2W3BfJH9q/saFMSGs5itHeVqHoTvm4NeKuZ6t+CjQNIS8tPpEwQQ="}
+DEBUG:root:Cancel Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='5e61da9afc73aee6120574f3571ef841719da02e434325d8c2c48dee433fc50ccdda034d32c1f2ee' predicted_execution_time_ms=1761298053699 additional_properties={}
+INFO:root:已取消订单: 844424539468229
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 55 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111382.8
+INFO:root:创建限价买单: price=111382.8, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113828,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717259018,"ExpiredAt":1761298658018,"Nonce":1122,"Sig":"IGPHySdqdZgpcbUfZuoLfqtPGwyALlSsWHxBtyaXRaOckXqU3nvRGyyLJIU1+7YMQYgQtGvzFntthOgbGnLGFbjNmCe5niq3bg5/2WgG22w="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='7c53eeea9a270e61c5d6b3a2290b4d93a6da9b660680a017fb47e701554cd317af8917962dd061f5' predicted_execution_time_ms=1761298059532 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=7c53eeea9a270e61c5d6b3a2290b4d93a6da9b660680a017fb47e701554cd317af8917962dd061f5
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:> CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:= connection is CLOSING
+DEBUG:websockets.client:< EOF
+DEBUG:websockets.client:> EOF
+DEBUG:websockets.client:= connection is CLOSED
+INFO:root:订单已添加到监控列表: order_index=844424539463007
+DEBUG:websockets.client:< TEXT '{"type":"ping"}' [15 bytes]
+ERROR:root:WebSocket运行异常: Unhandled message: {'type': 'ping'}（连续失败1次），2秒后重试...
+DEBUG:websockets.client:> PING f1 79 aa 5b [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG f1 79 aa 5b [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:WebSocket连接已恢复，重置失败计数
+INFO:root:WebSocket开始连接...
+DEBUG:websockets.client:= connection is CONNECTING
+DEBUG:websockets.client:> GET /stream HTTP/1.1
+DEBUG:websockets.client:> Host: mainnet.zklighter.elliot.ai
+DEBUG:websockets.client:> Upgrade: websocket
+DEBUG:websockets.client:> Connection: Upgrade
+DEBUG:websockets.client:> Sec-WebSocket-Key: WihCso2nQBtLQ70wuvCO4A==
+DEBUG:websockets.client:> Sec-WebSocket-Version: 13
+DEBUG:websockets.client:> Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+DEBUG:websockets.client:> User-Agent: Python/3.9 websockets/15.0.1
+DEBUG:websockets.client:< HTTP/1.1 101 Switching Protocols
+DEBUG:websockets.client:< Date: Fri, 24 Oct 2025 09:27:44 GMT
+DEBUG:websockets.client:< Connection: upgrade
+DEBUG:websockets.client:< Upgrade: websocket
+DEBUG:websockets.client:< Sec-WebSocket-Accept: V+iZAD7/UIqbbISOb7hTE0zqhOo=
+DEBUG:websockets.client:< Access-Control-Max-Age: 86400
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Access-Control-Allow-Origin: *
+DEBUG:websockets.client:< Access-Control-Allow-Methods: GET, HEAD, POST, PATCH, PUT, DELETE
+DEBUG:websockets.client:< Access-Control-Allow-Headers: Content-Type, Origin, X-CSRF-Token, Authorization, AccessToken, Token, Range
+DEBUG:websockets.client:< Access-Control-Expose-Headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers
+DEBUG:websockets.client:< Access-Control-Allow-Credentials: true
+DEBUG:websockets.client:= connection is OPEN
+DEBUG:websockets.client:< TEXT '{"session_id":"b6610eae-3906-4ec6-9eeb-47d11886f428","type":"connected"}' [72 bytes]
+DEBUG:websockets.client:> TEXT '{"type": "subscribe", "channel": "account_all/280459"}' [54 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...y_volume":15965.391624}' [1055 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 56 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 57 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 58 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 59 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:root:WebSocket心跳检查: 距上次消息 17.0秒
+DEBUG:websockets.client:> PING 83 49 e0 d0 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 83 49 e0 d0 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:websockets.client:> PING d8 8b 51 e1 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG d8 8b 51 e1 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 60 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 61 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+[{"order_index": 844424539468229, "client_order_index": 0, "order_id": "844424539468229", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111352.8", "nonce": 281474586046917, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113528, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717220317, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093712, "timestamp": 1761298020, "additional_properties": {"created_at": 1761298020, "updated_at": 1761298020}}]
+[{"order_index": 844424539468229, "client_order_index": 0, "order_id": "844424539468229", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111352.8", "nonce": 281474586046917, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113528, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717220317, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093712, "timestamp": 1761298020, "additional_properties": {"created_at": 1761298020, "updated_at": 1761298020}}]
+[{"order_index": 844424539468229, "client_order_index": 0, "order_id": "844424539468229", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111352.8", "nonce": 281474586046917, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113528, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717220317, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093712, "timestamp": 1761298020, "additional_properties": {"created_at": 1761298020, "updated_at": 1761298020}}]
+[{"order_index": 844424539468229, "client_order_index": 0, "order_id": "844424539468229", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111352.8", "nonce": 281474586046917, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113528, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717220317, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72093712, "timestamp": 1761298020, "additional_properties": {"created_at": 1761298020, "updated_at": 1761298020}}]
+null
+[{"order_index": 844424539463007, "client_order_index": 0, "order_id": "844424539463007", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111382.8", "nonce": 281474586041695, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113828, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717259018, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094100, "timestamp": 1761298059, "additional_properties": {"created_at": 1761298059, "updated_at": 1761298059}}]
+[{"order_index": 844424539463007, "client_order_index": 0, "order_id": "844424539463007", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111382.8", "nonce": 281474586041695, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113828, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717259018, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094100, "timestamp": 1761298059, "additional_properties": {"created_at": 1761298059, "updated_at": 1761298059}}]
+[{"order_index": 844424539463007, "client_order_index": 0, "order_id": "844424539463007", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111382.8", "nonce": 281474586041695, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113828, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717259018, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094100, "timestamp": 1761298059, "additional_properties": {"created_at": 1761298059, "updated_at": 1761298059}}]
+[{"order_index": 844424539463007, "client_order_index": 0, "order_id": "844424539463007", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111382.8", "nonce": 281474586041695, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113828, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717259018, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094100, "timestamp": 1761298059, "additional_properties": {"created_at": 1761298059, "updated_at": 1761298059}}]
+[{"order_index": 844424539463007, "client_order_index": 0, "order_id": "844424539463007", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111382.8", "nonce": 281474586041695, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113828, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717259018, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094100, "timestamp": 1761298059, "additional_properties": {"created_at": 1761298059, "updated_at": 1761298059}}]
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+DEBUG:root:Cancel Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"Index":844424539463007,"ExpiredAt":1761298690933,"Nonce":1123,"Sig":"tk5YXRJYUi7pxMBMOrV8fa7Av2OGb5qDyKd4SHUvquGtd1/Ya4Q5J96+IlU770alh1yjm5/Tw7fxPY7TDxRavSj4nBOInkufq85Vzh7k/28="}
+DEBUG:root:Cancel Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='6262eb3b9dda6d95f08a9e10924b407e3196f92baa6f6c9b4e705d2a8c40c4c39d901adf6f3033f5' predicted_execution_time_ms=1761298092253 additional_properties={}
+INFO:root:已取消订单: 844424539463007
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 62 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111389.8
+INFO:root:创建限价买单: price=111389.8, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113898,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717297574,"ExpiredAt":1761298696574,"Nonce":1124,"Sig":"zhq6rLxzWXMzTlA2oQBQQLq6tcpV/hndqkx6ncWbzBZHdGYS+1pVZsJ6dJtqlsrZ4Iu1EhTPmLInMkaGuza1cbsnGMxOVYYvxYn/xPvdiQw="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='db15a721345144355913268d0cd6e3c8f62cd8606c413a263842dfa26aead3dd1604efff5edf49ad' predicted_execution_time_ms=1761298098092 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=db15a721345144355913268d0cd6e3c8f62cd8606c413a263842dfa26aead3dd1604efff5edf49ad
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539459432
+DEBUG:websockets.client:> PING c1 0d 77 10 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG c1 0d 77 10 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 63 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 9a c4 fe 5a [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 9a c4 fe 5a [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 64 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+DEBUG:root:WebSocket心跳检查: 距上次消息 13.4秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 65 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 66 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:> CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:= connection is CLOSING
+DEBUG:websockets.client:< EOF
+DEBUG:websockets.client:> EOF
+DEBUG:websockets.client:= connection is CLOSED
+DEBUG:websockets.client:< TEXT '{"type":"ping"}' [15 bytes]
+ERROR:root:WebSocket运行异常: Unhandled message: {'type': 'ping'}（连续失败1次），2秒后重试...
+DEBUG:websockets.client:> PING c9 e4 50 e0 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG c9 e4 50 e0 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 67 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:WebSocket连接已恢复，重置失败计数
+INFO:root:WebSocket开始连接...
+DEBUG:websockets.client:= connection is CONNECTING
+DEBUG:websockets.client:> GET /stream HTTP/1.1
+DEBUG:websockets.client:> Host: mainnet.zklighter.elliot.ai
+DEBUG:websockets.client:> Upgrade: websocket
+DEBUG:websockets.client:> Connection: Upgrade
+DEBUG:websockets.client:> Sec-WebSocket-Key: HCgaXBVw27uFk4Ign08IFw==
+DEBUG:websockets.client:> Sec-WebSocket-Version: 13
+DEBUG:websockets.client:> Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+DEBUG:websockets.client:> User-Agent: Python/3.9 websockets/15.0.1
+DEBUG:websockets.client:< HTTP/1.1 101 Switching Protocols
+DEBUG:websockets.client:< Date: Fri, 24 Oct 2025 09:28:47 GMT
+DEBUG:websockets.client:< Connection: upgrade
+DEBUG:websockets.client:< Upgrade: websocket
+DEBUG:websockets.client:< Sec-WebSocket-Accept: Igus4rkFmetRSlWUZlu3fz6jrYI=
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Access-Control-Allow-Origin: *
+DEBUG:websockets.client:< Access-Control-Allow-Methods: GET, HEAD, POST, PATCH, PUT, DELETE
+DEBUG:websockets.client:< Access-Control-Allow-Headers: Content-Type, Origin, X-CSRF-Token, Authorization, AccessToken, Token, Range
+DEBUG:websockets.client:< Access-Control-Expose-Headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers
+DEBUG:websockets.client:< Access-Control-Allow-Credentials: true
+DEBUG:websockets.client:< Access-Control-Max-Age: 86400
+DEBUG:websockets.client:= connection is OPEN
+DEBUG:websockets.client:< TEXT '{"session_id":"d175e2ad-2a6e-4ba5-99fa-a945a40e72cb","type":"connected"}' [72 bytes]
+DEBUG:websockets.client:> TEXT '{"type": "subscribe", "channel": "account_all/280459"}' [54 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...y_volume":15965.391624}' [1055 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 68 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+DEBUG:root:Cancel Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"Index":844424539459432,"ExpiredAt":1761298729469,"Nonce":1125,"Sig":"PUFUvoiFHHas+LAlCSXw1GKK0luWT3+t5NYYZkjsHP2XyhcL9N6XfgGKJn6GpbeKnRDiOkH9m2+wgznNnjC4xp7bVVpuznizMDeG8L711ys="}
+DEBUG:root:Cancel Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='91800b8dd2fcb012082c2768d627ff694c589cf12f1c0658e696107fee9f1088540cfcbfff1b4331' predicted_execution_time_ms=1761298130788 additional_properties={}
+INFO:root:已取消订单: 844424539459432
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 69 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111395.1
+INFO:root:创建限价买单: price=111395.1, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113951,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717336123,"ExpiredAt":1761298735123,"Nonce":1126,"Sig":"15H8NlhpCdX74tawHMuPDo2RFOa9ZmnO4T9+uDYZQvcJp+jN7xZoNl0RCvv2Xx6x6FaG/vrQgb6T3SO8+YcAhwsleOnKdUNVatCb7Az3Mgg="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='6761158f58470d7f65cfb9fccfedff842c54db514e4d1f6cb312544ea6fb5c8499ba6ea8c116661d' predicted_execution_time_ms=1761298136642 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=6761158f58470d7f65cfb9fccfedff842c54db514e4d1f6cb312544ea6fb5c8499ba6ea8c116661d
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539454322
+DEBUG:root:WebSocket心跳检查: 距上次消息 4.9秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 70 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 4c 92 c1 a7 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 4c 92 c1 a7 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:websockets.client:> PING e3 82 8b a5 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG e3 82 8b a5 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 71 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298014, "market": "BTC", "available_balance": "25.639746"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [796 bytes]
+DEBUG:root:收到1笔交易记录
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+INFO:root:✅ 限价单完全成交！order_index=844424539454322
+INFO:root:成交详情: size=0.00020, price=111395.1, usd_amount=22.279020
+INFO:root:准备发送Redis通知: order_index=844424539454322, side=buy, avg_price=111395.1
+INFO:root:发布消息到 hedge:account_4_to_account_5: {"account_index": 280459, "market_index": 1, "order_index": 844424539454322, "filled_base_amount": "0.00020", "filled_quote_amount": "22.279020", "avg_price": "111395.1", "timestamp": 1761298148, "side": "buy"}
+INFO:root:已通过WebSocket发送A账户成交通知到Redis: order_index=844424539454322
+INFO:root:订单844424539454322已从监控列表移除
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [796 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 72 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761298153, "market": "BTC", "available_balance": "24.526840"}
+WARNING:root:⚠️ 对冲状态异常: 持仓大小不匹配: A=0.0002, B=0.0
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 73 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761298153, "market": "BTC", "available_balance": "24.526916"}
+INFO:root:[第三步] 如果持仓存在且是多头，活跃单不存在，则限价平多...
+INFO:root:市场1 卖60档价格: 111417.3
+INFO:root:创建限价卖单: price=111417.3, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1114173,"IsAsk":1,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717358847,"ExpiredAt":1761298757847,"Nonce":1127,"Sig":"jsxanq5lI4A/CKxeWvUGqO2nDWo3NXb7I0+TOYp5jP8Sg83iRoZwN4gHkzciIOCTs6gbi58qlHbXbXmKU6FI4gdjxi39f7RalRZE9fnS+jM="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='c765146dccf9506122b49ae1625a61c3cd8c29af723fcf21a52b8660639ca4861a7208cae411772c' predicted_execution_time_ms=1761298159365 additional_properties={}
+INFO:root:限价卖单创建成功: client_order_index=0, tx_hash=c765146dccf9506122b49ae1625a61c3cd8c29af723fcf21a52b8660639ca4861a7208cae411772c
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+INFO:root:订单已添加到监控列表: order_index=562950336844974
+DEBUG:websockets.client:> PING 0d c5 47 47 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 0d c5 47 47 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 74 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+[{"order_index": 844424539463007, "client_order_index": 0, "order_id": "844424539463007", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111382.8", "nonce": 281474586041695, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113828, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717259018, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094100, "timestamp": 1761298059, "additional_properties": {"created_at": 1761298059, "updated_at": 1761298059}}]
+null
+[{"order_index": 844424539459432, "client_order_index": 0, "order_id": "844424539459432", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111389.8", "nonce": 281474586038120, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113898, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717297574, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094419, "timestamp": 1761298098, "additional_properties": {"created_at": 1761298098, "updated_at": 1761298098}}]
+[{"order_index": 844424539459432, "client_order_index": 0, "order_id": "844424539459432", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111389.8", "nonce": 281474586038120, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113898, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717297574, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094419, "timestamp": 1761298098, "additional_properties": {"created_at": 1761298098, "updated_at": 1761298098}}]
+[{"order_index": 844424539459432, "client_order_index": 0, "order_id": "844424539459432", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111389.8", "nonce": 281474586038120, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113898, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717297574, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094419, "timestamp": 1761298098, "additional_properties": {"created_at": 1761298098, "updated_at": 1761298098}}]
+[{"order_index": 844424539459432, "client_order_index": 0, "order_id": "844424539459432", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111389.8", "nonce": 281474586038120, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113898, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717297574, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094419, "timestamp": 1761298098, "additional_properties": {"created_at": 1761298098, "updated_at": 1761298098}}]
+[{"order_index": 844424539459432, "client_order_index": 0, "order_id": "844424539459432", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111389.8", "nonce": 281474586038120, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113898, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717297574, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094419, "timestamp": 1761298098, "additional_properties": {"created_at": 1761298098, "updated_at": 1761298098}}]
+[{"order_index": 844424539459432, "client_order_index": 0, "order_id": "844424539459432", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111389.8", "nonce": 281474586038120, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113898, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717297574, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094419, "timestamp": 1761298098, "additional_properties": {"created_at": 1761298098, "updated_at": 1761298098}}]
+null
+[{"order_index": 844424539454322, "client_order_index": 0, "order_id": "844424539454322", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111395.1", "nonce": 281474586033010, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113951, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717336123, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094761, "timestamp": 1761298136, "additional_properties": {"created_at": 1761298136, "updated_at": 1761298136}}]
+[{"order_index": 844424539454322, "client_order_index": 0, "order_id": "844424539454322", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111395.1", "nonce": 281474586033010, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113951, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717336123, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094761, "timestamp": 1761298136, "additional_properties": {"created_at": 1761298136, "updated_at": 1761298136}}]
+null
+null
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761298153, "market": "BTC", "available_balance": "24.526821"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 59 8d c3 92 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 59 8d c3 92 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 75 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761298153, "market": "BTC", "available_balance": "24.527448"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:root:WebSocket心跳检查: 距上次消息 12.2秒
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 76 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00020, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0002, "sign": 1, "direction": "long", "timestamp": 1761298153, "market": "BTC", "available_balance": "24.526992"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [797 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [797 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:root:收到1笔交易记录
+INFO:root:✅ 限价单完全成交！order_index=562950336844974
+INFO:root:成交详情: size=0.00020, price=111417.3, usd_amount=22.283460
+INFO:root:准备发送Redis通知: order_index=562950336844974, side=sell, avg_price=111417.3
+INFO:root:发布消息到 hedge:account_4_to_account_5: {"account_index": 280459, "market_index": 1, "order_index": 562950336844974, "filled_base_amount": "0.00020", "filled_quote_amount": "22.283460", "avg_price": "111417.3", "timestamp": 1761298178, "side": "sell"}
+INFO:root:已通过WebSocket发送A账户成交通知到Redis: order_index=562950336844974
+INFO:root:订单562950336844974已从监控列表移除
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 77 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111392.4
+INFO:root:创建限价买单: price=111392.4, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113924,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717381841,"ExpiredAt":1761298780841,"Nonce":1128,"Sig":"EbvTM3KHC9EPt/v2tbH5suGLFpddhfsG4y7BIW6yh1ULkkjrxvKCAc0RU0aC3YcV6E/EyanuR4lfFF6VdMhlYjre8oCRjOO40N8qFfXGBm4="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='eb8fa245333ca9e099f2d6d758418b19ba9e4c825b5bf77492371d88a3c4d80aada8c237dc6f4444' predicted_execution_time_ms=1761298182363 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=eb8fa245333ca9e099f2d6d758418b19ba9e4c825b5bf77492371d88a3c4d80aada8c237dc6f4444
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539449050
+DEBUG:websockets.client:< CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:> CLOSE 1008 (policy violation) no pong [9 bytes]
+DEBUG:websockets.client:= connection is CLOSING
+DEBUG:websockets.client:< EOF
+DEBUG:websockets.client:> EOF
+DEBUG:websockets.client:= connection is CLOSED
+DEBUG:websockets.client:< TEXT '{"type":"ping"}' [15 bytes]
+ERROR:root:WebSocket运行异常: Unhandled message: {'type': 'ping'}（连续失败1次），2秒后重试...
+DEBUG:websockets.client:> PING e8 ac 40 42 [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG e8 ac 40 42 [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 78 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:WebSocket连接已恢复，重置失败计数
+INFO:root:WebSocket开始连接...
+DEBUG:websockets.client:= connection is CONNECTING
+DEBUG:websockets.client:> GET /stream HTTP/1.1
+DEBUG:websockets.client:> Host: mainnet.zklighter.elliot.ai
+DEBUG:websockets.client:> Upgrade: websocket
+DEBUG:websockets.client:> Connection: Upgrade
+DEBUG:websockets.client:> Sec-WebSocket-Key: q5+CkQ8EsjGRzkMxYb+aIA==
+DEBUG:websockets.client:> Sec-WebSocket-Version: 13
+DEBUG:websockets.client:> Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+DEBUG:websockets.client:> User-Agent: Python/3.9 websockets/15.0.1
+DEBUG:websockets.client:< HTTP/1.1 101 Switching Protocols
+DEBUG:websockets.client:< Date: Fri, 24 Oct 2025 09:29:49 GMT
+DEBUG:websockets.client:< Connection: upgrade
+DEBUG:websockets.client:< Upgrade: websocket
+DEBUG:websockets.client:< Sec-WebSocket-Accept: 0dUZjYxBqfpC0QOA3xmwBppHJgY=
+DEBUG:websockets.client:< Access-Control-Expose-Headers: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers
+DEBUG:websockets.client:< Access-Control-Allow-Credentials: true
+DEBUG:websockets.client:< Access-Control-Max-Age: 86400
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Vary: Origin
+DEBUG:websockets.client:< Access-Control-Allow-Origin: *
+DEBUG:websockets.client:< Access-Control-Allow-Methods: GET, HEAD, POST, PATCH, PUT, DELETE
+DEBUG:websockets.client:< Access-Control-Allow-Headers: Content-Type, Origin, X-CSRF-Token, Authorization, AccessToken, Token, Range
+DEBUG:websockets.client:= connection is OPEN
+DEBUG:websockets.client:< TEXT '{"session_id":"828bb5ba-2109-425e-a5f0-27fb2b0b017a","type":"connected"}' [72 bytes]
+DEBUG:websockets.client:> TEXT '{"type": "subscribe", "channel": "account_all/280459"}' [54 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...y_volume":16009.954104}' [1057 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 79 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 80 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:root:WebSocket心跳检查: 距上次消息 11.5秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 81 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING 55 3a 9b 0f [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 55 3a 9b 0f [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 82 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+DEBUG:websockets.client:> PING 2e 8b 92 6b [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 2e 8b 92 6b [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 83 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+DEBUG:root:Cancel Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"Index":844424539449050,"ExpiredAt":1761298814324,"Nonce":1129,"Sig":"Yl7DeE2qtP6O6CF9k5+FM2u064XzG7BtQMUZ3l82mNMaDDo//vTnZZKUO7+MiuXJCp4yfW/EWcePSALByjANyDpD5Y2KmnkXkCXfphx7YCg="}
+DEBUG:root:Cancel Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='502d933555dc88fe455a44009acc942874d50bb03ccfe5c3fad26913a7f68445f34bc6ac5352895a' predicted_execution_time_ms=1761298215756 additional_properties={}
+INFO:root:已取消订单: 844424539449050
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 84 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+INFO:root:[第三步] 如果持仓不存在，活跃单不存在，则限价开多...
+INFO:root:市场1 买60档价格: 111389.2
+INFO:root:创建限价买单: price=111389.2, amount=0.0002
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280459,"ApiKeyIndex":3,"MarketIndex":1,"ClientOrderIndex":0,"BaseAmount":20,"Price":1113892,"IsAsk":0,"Type":0,"TimeInForce":1,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":1763717421305,"ExpiredAt":1761298820305,"Nonce":1130,"Sig":"gkgs/e+z51NTFbwvmucD5lo/usI4Up/OkoP0moU2usxsrzrgRwS9Bx/orpYoGiFbRvvynZCTrCt61gD+Mo+oTf8f4gE+tEhRR+D+4tE/RUU="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='5d45dd300473902aa687114f2de224c6cd6d9830a31ecc82504721686e14ac63af2ea1bb6fdf5b6e' predicted_execution_time_ms=1761298221823 additional_properties={}
+INFO:root:限价买单创建成功: client_order_index=0, tx_hash=5d45dd300473902aa687114f2de224c6cd6d9830a31ecc82504721686e14ac63af2ea1bb6fdf5b6e
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [487 bytes]
+INFO:root:订单已添加到监控列表: order_index=844424539444043
+DEBUG:websockets.client:> PING 37 1b 11 cf [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG 37 1b 11 cf [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 85 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+[{"order_index": 562950336844974, "client_order_index": 0, "order_id": "562950336844974", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111417.3", "nonce": 383423662, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1114173, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717358847, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094952, "timestamp": 1761298159, "additional_properties": {"created_at": 1761298159, "updated_at": 1761298159}}]
+[{"order_index": 562950336844974, "client_order_index": 0, "order_id": "562950336844974", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111417.3", "nonce": 383423662, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1114173, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717358847, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094952, "timestamp": 1761298159, "additional_properties": {"created_at": 1761298159, "updated_at": 1761298159}}]
+[{"order_index": 562950336844974, "client_order_index": 0, "order_id": "562950336844974", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111417.3", "nonce": 383423662, "remaining_base_amount": "0.00020", "is_ask": true, "base_size": 20, "base_price": 1114173, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717358847, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72094952, "timestamp": 1761298159, "additional_properties": {"created_at": 1761298159, "updated_at": 1761298159}}]
+null
+[{"order_index": 844424539449050, "client_order_index": 0, "order_id": "844424539449050", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111392.4", "nonce": 281474586027738, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113924, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717381841, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72095121, "timestamp": 1761298182, "additional_properties": {"created_at": 1761298182, "updated_at": 1761298182}}]
+[{"order_index": 844424539449050, "client_order_index": 0, "order_id": "844424539449050", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111392.4", "nonce": 281474586027738, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113924, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717381841, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72095121, "timestamp": 1761298182, "additional_properties": {"created_at": 1761298182, "updated_at": 1761298182}}]
+[{"order_index": 844424539449050, "client_order_index": 0, "order_id": "844424539449050", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111392.4", "nonce": 281474586027738, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113924, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717381841, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72095121, "timestamp": 1761298182, "additional_properties": {"created_at": 1761298182, "updated_at": 1761298182}}]
+[{"order_index": 844424539449050, "client_order_index": 0, "order_id": "844424539449050", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111392.4", "nonce": 281474586027738, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113924, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717381841, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72095121, "timestamp": 1761298182, "additional_properties": {"created_at": 1761298182, "updated_at": 1761298182}}]
+[{"order_index": 844424539449050, "client_order_index": 0, "order_id": "844424539449050", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111392.4", "nonce": 281474586027738, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113924, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717381841, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72095121, "timestamp": 1761298182, "additional_properties": {"created_at": 1761298182, "updated_at": 1761298182}}]
+[{"order_index": 844424539449050, "client_order_index": 0, "order_id": "844424539449050", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111392.4", "nonce": 281474586027738, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113924, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717381841, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72095121, "timestamp": 1761298182, "additional_properties": {"created_at": 1761298182, "updated_at": 1761298182}}]
+null
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+INFO:root:不做任何处理，没有超时活跃单
+DEBUG:websockets.client:> PING dd 92 c3 de [binary, 4 bytes]
+DEBUG:websockets.client:% sent keepalive ping
+DEBUG:websockets.client:< PONG dd 92 c3 de [binary, 4 bytes]
+DEBUG:websockets.client:% received keepalive pong
+DEBUG:root:WebSocket心跳检查: 距上次消息 9.7秒
+INFO:root:
+INFO:root:============================================================
+INFO:root:开始第 86 轮循环
+INFO:root:============================================================
+INFO:root:第一步 查询出活跃订单
+INFO:root:第二步 查询持仓情况
+INFO:root:持仓情况: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_4 = {"account_name": "account_4", "account_index": 280459, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298181, "market": "BTC", "available_balance": "25.644186"}
+INFO:root:不做任何处理，没有超时活跃单
+INFO:root:收到信号 15
+INFO:root:收到停止信号...
+DEBUG:websockets.client:< PING '' [0 bytes]
+DEBUG:websockets.client:> PONG '' [0 bytes]
+INFO:root:清理资源...
+INFO:root:停止订单监控
+DEBUG:websockets.client:> CLOSE 1000 (OK) [2 bytes]
+DEBUG:websockets.client:= connection is CLOSING
+DEBUG:websockets.client:< CLOSE 1000 (OK) [2 bytes]
+DEBUG:websockets.client:< EOF
+DEBUG:websockets.client:> EOF
+DEBUG:websockets.client:= connection is CLOSED
+INFO:root:WebSocket监听线程退出
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [797 bytes]
+DEBUG:websockets.client:< TEXT '{"account":280459,"channel":"account_all:280459...":"update/account_all"}' [492 bytes]
+INFO:root:WebSocket监听和心跳监控已停止
+INFO:root:取消A账户挂单...
+INFO:root:账户280459在市场1没有活跃订单
+INFO:root:Redis连接已关闭
+INFO:root:清理完成
+INFO:root:程序退出
+[{"order_index": 844424539444043, "client_order_index": 0, "order_id": "844424539444043", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111389.2", "nonce": 281474586022731, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113892, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717421305, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72095519, "timestamp": 1761298221, "additional_properties": {"created_at": 1761298221, "updated_at": 1761298221}}]
+[{"order_index": 844424539444043, "client_order_index": 0, "order_id": "844424539444043", "client_order_id": "0", "market_index": 1, "owner_account_index": 280459, "initial_base_amount": "0.00020", "price": "111389.2", "nonce": 281474586022731, "remaining_base_amount": "0.00020", "is_ask": false, "base_size": 20, "base_price": 1113892, "filled_base_amount": "0.00000", "filled_quote_amount": "0.000000", "side": "", "type": "limit", "time_in_force": "good-till-time", "reduce_only": false, "trigger_price": "0.0", "order_expiry": 1763717421305, "status": "open", "trigger_status": "na", "trigger_time": 0, "parent_order_index": 0, "parent_order_id": "0", "to_trigger_order_id_0": "0", "to_trigger_order_id_1": "0", "to_cancel_order_id_0": "0", "block_height": 72095519, "timestamp": 1761298221, "additional_properties": {"created_at": 1761298221, "updated_at": 1761298221}}]
+ERROR:asyncio:Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x1183babb0>
+ERROR:asyncio:Unclosed connector
+connections: ['deque([(<aiohttp.client_proto.ResponseHandler object at 0x118a0f9a0>, 484.176678375)])']
+connector: <aiohttp.connector.TCPConnector object at 0x1183ba910>

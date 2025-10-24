@@ -1,0 +1,425 @@
+DEBUG:asyncio:Using selector: KqueueSelector
+INFO:root:============================================================
+INFO:root:跨账户对冲策略B启动 - 订阅模式
+INFO:root:市场: BTC
+INFO:root:============================================================
+INFO:root:加载配置文件...
+INFO:root:配置文件加载成功: config.yaml
+INFO:root:初始化Redis连接...
+INFO:root:使用自定义channel: hedge:account_4_to_account_5
+INFO:root:初始化Redis连接: localhost:6388/0
+INFO:root:Redis连接成功
+INFO:root:初始化B账户...
+DEBUG:root:Detected ARM architecture on macOS.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): mainnet.zklighter.elliot.ai:443
+DEBUG:urllib3.connectionpool:https://mainnet.zklighter.elliot.ai:443 "GET /api/v1/nextNonce?account_index=280458&api_key_index=2 HTTP/1.1" 200 24
+INFO:root:查询市场索引: BTC...
+INFO:root:找到市场 BTC, market_index=1
+INFO:root:清理历史挂单...
+INFO:root:账户280458在市场1没有活跃订单
+INFO:root:初始化B账户管理器...
+INFO:root:B账户管理器初始化完成: account=280458, base_multiplier=100000, price_multiplier=10
+INFO:root:设置Redis订阅...
+INFO:root:订阅channel: hedge:account_4_to_account_5
+INFO:root:Redis监听线程已启动
+INFO:root:启动B账户持仓同步定时任务...
+INFO:root:B账户持仓同步线程已启动（每5秒同步一次）
+INFO:root:初始化完成！B账户开始监听A账户成交消息...
+INFO:root:B账户开始监听A账户成交消息
+INFO:root:B账户进入监听模式，等待A账户成交通知...
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297078, "market": "BTC", "available_balance": "24.750677"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297078, "market": "BTC", "available_balance": "24.750677"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297078, "market": "BTC", "available_balance": "24.750677"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297078, "market": "BTC", "available_balance": "24.750677"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297078, "market": "BTC", "available_balance": "24.750677"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297078, "market": "BTC", "available_balance": "24.750677"}
+INFO:root:收到消息: {'account_index': 280459, 'market_index': 1, 'order_index': 844424539499239, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.256420', 'avg_price': '111282.1', 'timestamp': 1761297780, 'side': 'buy'}
+INFO:root:收到A账户成交通知: {'account_index': 280459, 'market_index': 1, 'order_index': 844424539499239, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.256420', 'avg_price': '111282.1', 'timestamp': 1761297780, 'side': 'buy'}
+INFO:root:开始执行对冲: market=1, amount=0.00020, avg_price=111282.1, A方向=buy
+INFO:root:数量转换: 0.00020 * 100000 = 20
+INFO:root:价格转换: 111282.1 * 10 = 1057179
+INFO:root:对冲逻辑: A账户买入 → B账户卖出 (is_ask=True)
+INFO:root:创建市价卖出单: amount=20, avg_execution_price=1057179
+INFO:root:准备创建市价订单: market=1, amount=20, avg_price=1057179, client_order_index=1761297780850
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280458,"ApiKeyIndex":2,"MarketIndex":1,"ClientOrderIndex":1761297780850,"BaseAmount":20,"Price":1057179,"IsAsk":1,"Type":1,"TimeInForce":0,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":0,"ExpiredAt":1761298379808,"Nonce":820,"Sig":"BYN//C2fYJq8oVhKfaTUBDUQxL7b3L+ohy88SSQSnWYyXKmf/zfwSS7T+0v7wDKmXI/NCUlxbM6jiLV3e8N6CWtJKioL7BNOjA1H+lLZNS8="}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297078, "market": "BTC", "available_balance": "24.750677"}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='1b747c0478affa26b3a15e0d04ebf38efff16b83a6ea9c2087fe3e2a377ba764f71e2f7b7b7a7be6' predicted_execution_time_ms=1761297781692 additional_properties={}
+INFO:root:创建订单返回: tx=<lighter.transactions.create_order.CreateOrder object at 0x105888c10>, resp=code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='1b747c0478affa26b3a15e0d04ebf38efff16b83a6ea9c2087fe3e2a377ba764f71e2f7b7b7a7be6' predicted_execution_time_ms=1761297781692 additional_properties={}, err=None
+INFO:root:市价卖出单创建成功: tx_hash=1b747c0478affa26b3a15e0d04ebf38efff16b83a6ea9c2087fe3e2a377ba764f71e2f7b7b7a7be6, client_order_index=1761297780850
+INFO:root:等待3秒后查询订单状态 (尝试 1/5)...
+INFO:root:查询订单状态: client_order_index=1761297780850
+INFO:root:在非活跃订单中找到订单: order_index=562950336807209, status=filled
+INFO:root:✅ 市价卖出单已成交: filled_amount=0.00020
+INFO:root:对冲成功 (尝试 1/50)
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297786, "market": "BTC", "available_balance": "23.637575"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297786, "market": "BTC", "available_balance": "23.636945"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297786, "market": "BTC", "available_balance": "23.635349"}
+INFO:root:收到消息: {'account_index': 280459, 'market_index': 1, 'order_index': 562950336807823, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.258660', 'avg_price': '111293.3', 'timestamp': 1761297799, 'side': 'sell'}
+INFO:root:收到A账户成交通知: {'account_index': 280459, 'market_index': 1, 'order_index': 562950336807823, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.258660', 'avg_price': '111293.3', 'timestamp': 1761297799, 'side': 'sell'}
+INFO:root:开始执行对冲: market=1, amount=0.00020, avg_price=111293.3, A方向=sell
+INFO:root:数量转换: 0.00020 * 100000 = 20
+INFO:root:价格转换: 111293.3 * 10 = 1168579
+INFO:root:对冲逻辑: A账户卖出 → B账户买入 (is_ask=False)
+INFO:root:创建市价买入单: amount=20, avg_execution_price=1168579
+INFO:root:准备创建市价订单: market=1, amount=20, avg_price=1168579, client_order_index=1761297799686
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280458,"ApiKeyIndex":2,"MarketIndex":1,"ClientOrderIndex":1761297799686,"BaseAmount":20,"Price":1168579,"IsAsk":0,"Type":1,"TimeInForce":0,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":0,"ExpiredAt":1761298398586,"Nonce":821,"Sig":"dmqx7cwPW0QrDnyGpIA6EAtXofx3SWD5D4flScJEABMximDena8tJmS28ZNNmum16SYRFtLpAwQdjbeNtqVqij2j/BEElBmFslkhPAz/ATk="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='59692a66176d63953cb8e4524dbf84df39a785c477e6ec5800d37d3e01a4ab9733f53490c9f06baf' predicted_execution_time_ms=1761297800503 additional_properties={}
+INFO:root:创建订单返回: tx=<lighter.transactions.create_order.CreateOrder object at 0x105888dc0>, resp=code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='59692a66176d63953cb8e4524dbf84df39a785c477e6ec5800d37d3e01a4ab9733f53490c9f06baf' predicted_execution_time_ms=1761297800503 additional_properties={}, err=None
+INFO:root:市价买入单创建成功: tx_hash=59692a66176d63953cb8e4524dbf84df39a785c477e6ec5800d37d3e01a4ab9733f53490c9f06baf, client_order_index=1761297799686
+INFO:root:等待3秒后查询订单状态 (尝试 1/5)...
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:查询订单状态: client_order_index=1761297799686
+INFO:root:在非活跃订单中找到订单: order_index=844424539493840, status=filled
+INFO:root:✅ 市价买入单已成交: filled_amount=0.00020
+INFO:root:对冲成功 (尝试 1/50)
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297801, "market": "BTC", "available_balance": "24.746031"}
+INFO:root:收到消息: {'account_index': 280459, 'market_index': 1, 'order_index': 844424539485022, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.261900', 'avg_price': '111309.5', 'timestamp': 1761297888, 'side': 'buy'}
+INFO:root:收到A账户成交通知: {'account_index': 280459, 'market_index': 1, 'order_index': 844424539485022, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.261900', 'avg_price': '111309.5', 'timestamp': 1761297888, 'side': 'buy'}
+INFO:root:开始执行对冲: market=1, amount=0.00020, avg_price=111309.5, A方向=buy
+INFO:root:数量转换: 0.00020 * 100000 = 20
+INFO:root:价格转换: 111309.5 * 10 = 1057440
+INFO:root:对冲逻辑: A账户买入 → B账户卖出 (is_ask=True)
+INFO:root:创建市价卖出单: amount=20, avg_execution_price=1057440
+INFO:root:准备创建市价订单: market=1, amount=20, avg_price=1057440, client_order_index=1761297889006
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280458,"ApiKeyIndex":2,"MarketIndex":1,"ClientOrderIndex":1761297889006,"BaseAmount":20,"Price":1057440,"IsAsk":1,"Type":1,"TimeInForce":0,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":0,"ExpiredAt":1761298487074,"Nonce":822,"Sig":"lA57MxE/pWGpdByQUSo9MCQBelEiPSV4B8NfNyeHICCimpGD74SJeJ96WkdjxMNK1rA0mddxFB+HWzGjwoh7jLdAzoXotysZU1VWTiUajXo="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='554af7192d03ba21d24063253be8f16370d8e1ae4a0820ef3e4b7b7b7defbce1e8ca11ebe13a651e' predicted_execution_time_ms=1761297888978 additional_properties={}
+INFO:root:创建订单返回: tx=<lighter.transactions.create_order.CreateOrder object at 0x105a130d0>, resp=code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='554af7192d03ba21d24063253be8f16370d8e1ae4a0820ef3e4b7b7b7defbce1e8ca11ebe13a651e' predicted_execution_time_ms=1761297888978 additional_properties={}, err=None
+INFO:root:市价卖出单创建成功: tx_hash=554af7192d03ba21d24063253be8f16370d8e1ae4a0820ef3e4b7b7b7defbce1e8ca11ebe13a651e, client_order_index=1761297889006
+INFO:root:等待3秒后查询订单状态 (尝试 1/5)...
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297889, "market": "BTC", "available_balance": "23.632848"}
+INFO:root:查询订单状态: client_order_index=1761297889006
+WARNING:root:未找到client_order_index=1761297889006的订单
+WARNING:root:⚠️ 未找到订单 (尝试 1/5)
+INFO:root:等待3秒后查询订单状态 (尝试 2/5)...
+INFO:root:查询订单状态: client_order_index=1761297889006
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297889, "market": "BTC", "available_balance": "23.633352"}
+INFO:root:在非活跃订单中找到订单: order_index=562950336817602, status=filled
+INFO:root:✅ 市价卖出单已成交: filled_amount=0.00020
+INFO:root:对冲成功 (尝试 1/50)
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297889, "market": "BTC", "available_balance": "23.632092"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297889, "market": "BTC", "available_balance": "23.631147"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297889, "market": "BTC", "available_balance": "23.631756"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297889, "market": "BTC", "available_balance": "23.634150"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297889, "market": "BTC", "available_balance": "23.632911"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297889, "market": "BTC", "available_balance": "23.631147"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297889, "market": "BTC", "available_balance": "23.630538"}
+INFO:root:收到消息: {'account_index': 280459, 'market_index': 1, 'order_index': 562950336821806, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.264720', 'avg_price': '111323.6', 'timestamp': 1761297932, 'side': 'sell'}
+INFO:root:收到A账户成交通知: {'account_index': 280459, 'market_index': 1, 'order_index': 562950336821806, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.264720', 'avg_price': '111323.6', 'timestamp': 1761297932, 'side': 'sell'}
+INFO:root:开始执行对冲: market=1, amount=0.00020, avg_price=111323.6, A方向=sell
+INFO:root:数量转换: 0.00020 * 100000 = 20
+INFO:root:价格转换: 111323.6 * 10 = 1168897
+INFO:root:对冲逻辑: A账户卖出 → B账户买入 (is_ask=False)
+INFO:root:创建市价买入单: amount=20, avg_execution_price=1168897
+INFO:root:准备创建市价订单: market=1, amount=20, avg_price=1168897, client_order_index=1761297933024
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280458,"ApiKeyIndex":2,"MarketIndex":1,"ClientOrderIndex":1761297933024,"BaseAmount":20,"Price":1168897,"IsAsk":0,"Type":1,"TimeInForce":0,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":0,"ExpiredAt":1761298531397,"Nonce":823,"Sig":"zErd4gDkYdSAvDjuVHaJ5k3t0JWzR1vPABDnhdxFp1IiHpBDek5TcC3YOb+nxu3bchOYSme52JTb/Lbf1/8JbS3w1GwOX96XnF7dnUuH6k4="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='896bdcc2f2e4048cfa1bf2fbf08dd827275a4c05174efa040a3ff86ef7bf9caf95916fb4cc672afd' predicted_execution_time_ms=1761297933343 additional_properties={}
+INFO:root:创建订单返回: tx=<lighter.transactions.create_order.CreateOrder object at 0x105a135b0>, resp=code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='896bdcc2f2e4048cfa1bf2fbf08dd827275a4c05174efa040a3ff86ef7bf9caf95916fb4cc672afd' predicted_execution_time_ms=1761297933343 additional_properties={}, err=None
+INFO:root:市价买入单创建成功: tx_hash=896bdcc2f2e4048cfa1bf2fbf08dd827275a4c05174efa040a3ff86ef7bf9caf95916fb4cc672afd, client_order_index=1761297933024
+INFO:root:等待3秒后查询订单状态 (尝试 1/5)...
+INFO:root:查询订单状态: client_order_index=1761297933024
+WARNING:root:未找到client_order_index=1761297933024的订单
+WARNING:root:⚠️ 未找到订单 (尝试 1/5)
+INFO:root:等待3秒后查询订单状态 (尝试 2/5)...
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297936, "market": "BTC", "available_balance": "24.741231"}
+INFO:root:查询订单状态: client_order_index=1761297933024
+INFO:root:在非活跃订单中找到订单: order_index=844424539479212, status=filled
+INFO:root:✅ 市价买入单已成交: filled_amount=0.00020
+INFO:root:对冲成功 (尝试 1/50)
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297936, "market": "BTC", "available_balance": "24.741231"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297936, "market": "BTC", "available_balance": "24.741231"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297936, "market": "BTC", "available_balance": "24.741231"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297936, "market": "BTC", "available_balance": "24.741231"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297936, "market": "BTC", "available_balance": "24.741231"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297936, "market": "BTC", "available_balance": "24.741231"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297936, "market": "BTC", "available_balance": "24.741231"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761297936, "market": "BTC", "available_balance": "24.741231"}
+INFO:root:收到消息: {'account_index': 280459, 'market_index': 1, 'order_index': 844424539472793, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.270720', 'avg_price': '111353.6', 'timestamp': 1761297982, 'side': 'buy'}
+INFO:root:收到A账户成交通知: {'account_index': 280459, 'market_index': 1, 'order_index': 844424539472793, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.270720', 'avg_price': '111353.6', 'timestamp': 1761297982, 'side': 'buy'}
+INFO:root:开始执行对冲: market=1, amount=0.00020, avg_price=111353.6, A方向=buy
+INFO:root:数量转换: 0.00020 * 100000 = 20
+INFO:root:价格转换: 111353.6 * 10 = 1057859
+INFO:root:对冲逻辑: A账户买入 → B账户卖出 (is_ask=True)
+INFO:root:创建市价卖出单: amount=20, avg_execution_price=1057859
+INFO:root:准备创建市价订单: market=1, amount=20, avg_price=1057859, client_order_index=1761297983039
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280458,"ApiKeyIndex":2,"MarketIndex":1,"ClientOrderIndex":1761297983039,"BaseAmount":20,"Price":1057859,"IsAsk":1,"Type":1,"TimeInForce":0,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":0,"ExpiredAt":1761298581150,"Nonce":824,"Sig":"nhKsOz3K3b4D0nPBkjrv5J/UaP+PrN302p3kDvpYpm3Qwg5TGhXCLPeATDqMFWI5ItBfErer5+d040fyikJYo9sLCmsGCw+ZG/3BZoRnYiY="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='0d0853d15da83e6ca4bb7d83c94f922dab478918ada01f1213bc1a7b298a809a589072b54665d844' predicted_execution_time_ms=1761297983042 additional_properties={}
+INFO:root:创建订单返回: tx=<lighter.transactions.create_order.CreateOrder object at 0x105a13e20>, resp=code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='0d0853d15da83e6ca4bb7d83c94f922dab478918ada01f1213bc1a7b298a809a589072b54665d844' predicted_execution_time_ms=1761297983042 additional_properties={}, err=None
+INFO:root:市价卖出单创建成功: tx_hash=0d0853d15da83e6ca4bb7d83c94f922dab478918ada01f1213bc1a7b298a809a589072b54665d844, client_order_index=1761297983039
+INFO:root:等待3秒后查询订单状态 (尝试 1/5)...
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297983, "market": "BTC", "available_balance": "23.627554"}
+INFO:root:查询订单状态: client_order_index=1761297983039
+WARNING:root:未找到client_order_index=1761297983039的订单
+WARNING:root:⚠️ 未找到订单 (尝试 1/5)
+INFO:root:等待3秒后查询订单状态 (尝试 2/5)...
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297983, "market": "BTC", "available_balance": "23.629045"}
+INFO:root:查询订单状态: client_order_index=1761297983039
+WARNING:root:未找到client_order_index=1761297983039的订单
+WARNING:root:⚠️ 未找到订单 (尝试 2/5)
+INFO:root:等待3秒后查询订单状态 (尝试 3/5)...
+INFO:root:查询订单状态: client_order_index=1761297983039
+WARNING:root:未找到client_order_index=1761297983039的订单
+WARNING:root:⚠️ 未找到订单 (尝试 3/5)
+INFO:root:等待3秒后查询订单状态 (尝试 4/5)...
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297983, "market": "BTC", "available_balance": "23.630536"}
+INFO:root:查询订单状态: client_order_index=1761297983039
+INFO:root:在非活跃订单中找到订单: order_index=562950336828090, status=filled
+INFO:root:✅ 市价卖出单已成交: filled_amount=0.00020
+INFO:root:对冲成功 (尝试 1/50)
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297983, "market": "BTC", "available_balance": "23.631229"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297983, "market": "BTC", "available_balance": "23.631460"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297983, "market": "BTC", "available_balance": "23.629864"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761297983, "market": "BTC", "available_balance": "23.627470"}
+INFO:root:收到消息: {'account_index': 280459, 'market_index': 1, 'order_index': 562950336828414, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.273500', 'avg_price': '111367.5', 'timestamp': 1761298014, 'side': 'sell'}
+INFO:root:收到A账户成交通知: {'account_index': 280459, 'market_index': 1, 'order_index': 562950336828414, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.273500', 'avg_price': '111367.5', 'timestamp': 1761298014, 'side': 'sell'}
+INFO:root:开始执行对冲: market=1, amount=0.00020, avg_price=111367.5, A方向=sell
+INFO:root:数量转换: 0.00020 * 100000 = 20
+INFO:root:价格转换: 111367.5 * 10 = 1169358
+INFO:root:对冲逻辑: A账户卖出 → B账户买入 (is_ask=False)
+INFO:root:创建市价买入单: amount=20, avg_execution_price=1169358
+INFO:root:准备创建市价订单: market=1, amount=20, avg_price=1169358, client_order_index=1761298014653
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280458,"ApiKeyIndex":2,"MarketIndex":1,"ClientOrderIndex":1761298014653,"BaseAmount":20,"Price":1169358,"IsAsk":0,"Type":1,"TimeInForce":0,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":0,"ExpiredAt":1761298613498,"Nonce":825,"Sig":"7nGTxHa5Wek//5thkzrZLQu52i2mEOnWOp6d+6Hr2uZGDLGuMtJGBRWl820BTnOPHed7pxQA5jefQYrXuYnrkpB5Hl2lIZXLTgHK0CVOhkI="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='55c1a1a294e5637c68adb0958ade363e69a380c509b90ff935fe7435e8d93049fb8a34d8ad30bdd0' predicted_execution_time_ms=1761298015353 additional_properties={}
+INFO:root:创建订单返回: tx=<lighter.transactions.create_order.CreateOrder object at 0x105a13e50>, resp=code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='55c1a1a294e5637c68adb0958ade363e69a380c509b90ff935fe7435e8d93049fb8a34d8ad30bdd0' predicted_execution_time_ms=1761298015353 additional_properties={}, err=None
+INFO:root:市价买入单创建成功: tx_hash=55c1a1a294e5637c68adb0958ade363e69a380c509b90ff935fe7435e8d93049fb8a34d8ad30bdd0, client_order_index=1761298014653
+INFO:root:等待3秒后查询订单状态 (尝试 1/5)...
+INFO:root:查询订单状态: client_order_index=1761298014653
+WARNING:root:未找到client_order_index=1761298014653的订单
+WARNING:root:⚠️ 未找到订单 (尝试 1/5)
+INFO:root:等待3秒后查询订单状态 (尝试 2/5)...
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:查询订单状态: client_order_index=1761298014653
+WARNING:root:未找到client_order_index=1761298014653的订单
+WARNING:root:⚠️ 未找到订单 (尝试 2/5)
+INFO:root:等待3秒后查询订单状态 (尝试 3/5)...
+INFO:root:查询订单状态: client_order_index=1761298014653
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:在非活跃订单中找到订单: order_index=844424539468728, status=filled
+INFO:root:✅ 市价买入单已成交: filled_amount=0.00020
+INFO:root:对冲成功 (尝试 1/50)
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298019, "market": "BTC", "available_balance": "24.737811"}
+INFO:root:收到消息: {'account_index': 280459, 'market_index': 1, 'order_index': 844424539454322, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.279020', 'avg_price': '111395.1', 'timestamp': 1761298148, 'side': 'buy'}
+INFO:root:收到A账户成交通知: {'account_index': 280459, 'market_index': 1, 'order_index': 844424539454322, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.279020', 'avg_price': '111395.1', 'timestamp': 1761298148, 'side': 'buy'}
+INFO:root:开始执行对冲: market=1, amount=0.00020, avg_price=111395.1, A方向=buy
+INFO:root:数量转换: 0.00020 * 100000 = 20
+INFO:root:价格转换: 111395.1 * 10 = 1058253
+INFO:root:对冲逻辑: A账户买入 → B账户卖出 (is_ask=True)
+INFO:root:创建市价卖出单: amount=20, avg_execution_price=1058253
+INFO:root:准备创建市价订单: market=1, amount=20, avg_price=1058253, client_order_index=1761298148886
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280458,"ApiKeyIndex":2,"MarketIndex":1,"ClientOrderIndex":1761298148886,"BaseAmount":20,"Price":1058253,"IsAsk":1,"Type":1,"TimeInForce":0,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":0,"ExpiredAt":1761298747667,"Nonce":826,"Sig":"VYtMR03q/BAJMup8wMJZEK/6DWXBnn610yGQCbxYatn6fO2FkJEZVeLe0zB0aIPorgIEevUC1S9BjMQb65TRiXc8OUlOfJh3HGfka9xNLEg="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='0d099da4cfa0798cde4f89b137c8f68e9243efd2c54b7df99b8361aa150278e65df48ed27ea55f1b' predicted_execution_time_ms=1761298149550 additional_properties={}
+INFO:root:创建订单返回: tx=<lighter.transactions.create_order.CreateOrder object at 0x105888b50>, resp=code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='0d099da4cfa0798cde4f89b137c8f68e9243efd2c54b7df99b8361aa150278e65df48ed27ea55f1b' predicted_execution_time_ms=1761298149550 additional_properties={}, err=None
+INFO:root:市价卖出单创建成功: tx_hash=0d099da4cfa0798cde4f89b137c8f68e9243efd2c54b7df99b8361aa150278e65df48ed27ea55f1b, client_order_index=1761298148886
+INFO:root:等待3秒后查询订单状态 (尝试 1/5)...
+INFO:root:查询订单状态: client_order_index=1761298148886
+INFO:root:在非活跃订单中找到订单: order_index=562950336843942, status=filled
+INFO:root:✅ 市价卖出单已成交: filled_amount=0.00020
+INFO:root:对冲成功 (尝试 1/50)
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761298153, "market": "BTC", "available_balance": "23.621785"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761298153, "market": "BTC", "available_balance": "23.621869"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761298153, "market": "BTC", "available_balance": "23.621827"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761298153, "market": "BTC", "available_balance": "23.623213"}
+INFO:root:同步B账户持仓: size=0.00020, sign=-1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0002, "sign": -1, "direction": "short", "timestamp": 1761298153, "market": "BTC", "available_balance": "23.622058"}
+INFO:root:收到消息: {'account_index': 280459, 'market_index': 1, 'order_index': 562950336844974, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.283460', 'avg_price': '111417.3', 'timestamp': 1761298178, 'side': 'sell'}
+INFO:root:收到A账户成交通知: {'account_index': 280459, 'market_index': 1, 'order_index': 562950336844974, 'filled_base_amount': '0.00020', 'filled_quote_amount': '22.283460', 'avg_price': '111417.3', 'timestamp': 1761298178, 'side': 'sell'}
+INFO:root:开始执行对冲: market=1, amount=0.00020, avg_price=111417.3, A方向=sell
+INFO:root:数量转换: 0.00020 * 100000 = 20
+INFO:root:价格转换: 111417.3 * 10 = 1169881
+INFO:root:对冲逻辑: A账户卖出 → B账户买入 (is_ask=False)
+INFO:root:创建市价买入单: amount=20, avg_execution_price=1169881
+INFO:root:准备创建市价订单: market=1, amount=20, avg_price=1169881, client_order_index=1761298178875
+DEBUG:root:Create Order Tx Info: {"AccountIndex":280458,"ApiKeyIndex":2,"MarketIndex":1,"ClientOrderIndex":1761298178875,"BaseAmount":20,"Price":1169881,"IsAsk":0,"Type":1,"TimeInForce":0,"ReduceOnly":0,"TriggerPrice":0,"OrderExpiry":0,"ExpiredAt":1761298777317,"Nonce":827,"Sig":"ORQl4AUJGsznIdFRDlxlJ0SrK1f80PIPAsX+KUuJMdqtwVRSlylLKDbI1KutHS4k2xsqcucEDiVFf9JX7fZxSuRyERrvQFoftA5JzBIVUxw="}
+DEBUG:root:Create Order Send Tx Response: code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='22813fd2dc90c447af9e9ff2d9c4f3727c9aed1a43ea39be44aa68031fa5d757da32ada4b112fcc8' predicted_execution_time_ms=1761298179224 additional_properties={}
+INFO:root:创建订单返回: tx=<lighter.transactions.create_order.CreateOrder object at 0x105888e50>, resp=code=200 message='{"ratelimit": "didn\'t use volume quota"}' tx_hash='22813fd2dc90c447af9e9ff2d9c4f3727c9aed1a43ea39be44aa68031fa5d757da32ada4b112fcc8' predicted_execution_time_ms=1761298179224 additional_properties={}, err=None
+INFO:root:市价买入单创建成功: tx_hash=22813fd2dc90c447af9e9ff2d9c4f3727c9aed1a43ea39be44aa68031fa5d757da32ada4b112fcc8, client_order_index=1761298178875
+INFO:root:等待3秒后查询订单状态 (尝试 1/5)...
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:查询订单状态: client_order_index=1761298178875
+INFO:root:在非活跃订单中找到订单: order_index=844424539449430, status=filled
+INFO:root:✅ 市价买入单已成交: filled_amount=0.00020
+INFO:root:对冲成功 (尝试 1/50)
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:同步B账户持仓: size=0.00000, sign=1
+DEBUG:root:更新持仓到Redis: HSET hedge:positions:account_4_account_5:BTC account_5 = {"account_name": "account_5", "account_index": 280458, "size": 0.0, "sign": 1, "direction": "long", "timestamp": 1761298179, "market": "BTC", "available_balance": "24.732711"}
+INFO:root:收到信号 15
+INFO:root:收到停止信号...
+INFO:root:清理资源...
+INFO:root:B账户停止监听
+INFO:root:取消B账户挂单...
+INFO:root:账户280458在市场1没有活跃订单
+INFO:root:Redis监听线程已停止
+INFO:root:Redis连接已关闭
+INFO:root:清理完成
+INFO:root:程序退出
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/threading.py", line 973, in _bootstrap_inner
+    self.run()
+  File "/Users/liujian/Library/Python/3.9/lib/python/site-packages/redis/client.py", line 1265, in run
+ERROR:asyncio:Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x1053e0eb0>
+ERROR:asyncio:Unclosed connector
+connections: ['deque([(<aiohttp.client_proto.ResponseHandler object at 0x1053e4dc0>, 485.4814015)])']
+connector: <aiohttp.connector.TCPConnector object at 0x1053e0c10>
+ERROR:asyncio:Fatal error on SSL transport
+protocol: <asyncio.sslproto.SSLProtocol object at 0x105a13b80>
+transport: <_SelectorSocketTransport closing fd=13>
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/asyncio/selector_events.py", line 918, in write
+    n = self._sock.send(data)
+OSError: [Errno 9] Bad file descriptor
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/asyncio/sslproto.py", line 684, in _process_write_backlog
+    self._transport.write(chunk)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/asyncio/selector_events.py", line 924, in write
+    self._fatal_error(exc, 'Fatal write error on socket transport')
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/asyncio/selector_events.py", line 719, in _fatal_error
+    self._force_close(exc)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/asyncio/selector_events.py", line 731, in _force_close
+    self._loop.call_soon(self._call_connection_lost, exc)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/asyncio/base_events.py", line 746, in call_soon
+    self._check_closed()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/asyncio/base_events.py", line 510, in _check_closed
+    raise RuntimeError('Event loop is closed')
+RuntimeError: Event loop is closed
