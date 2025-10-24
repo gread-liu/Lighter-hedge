@@ -3,13 +3,13 @@ accounts:
     account_name: account_4
     api_key_private_key: ""  # 替换为实际的私钥
     account_index:               # 替换为实际的账户索引
-    api_key_index: 
+    api_key_index:
 
   account_b:
     account_name: account_5
     api_key_private_key: ""  # 替换为实际的私钥
     account_index:               # 替换为实际的账户索引
-    api_key_index: 
+    api_key_index:
 
 redis:
   host: "localhost"
